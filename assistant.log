@@ -1,0 +1,37 @@
+2025-05-08 13:20:49,860 INFO [USER] Привет роботи шт.
+2025-05-08 13:20:50,940 INFO [THREAD] created: thread_xhYrfSJ1uGWPlPprFCrpSBjg
+2025-05-08 13:20:51,662 INFO [THREAD] message sent: Привет роботи шт.
+2025-05-08 13:20:53,345 INFO [RUN] started: run_MDuZBWx99tIazxtQMWI96ngZ
+2025-05-08 13:20:53,716 INFO [RUN] status: queued
+2025-05-08 13:20:55,525 INFO [RUN] status: completed
+2025-05-08 13:20:55,893 INFO [MESSAGES] count: 2
+2025-05-08 13:20:55,893 INFO [ASSISTANT] Здравствуйте! Чем могу помочь вам на аукционной платформе?
+2025-05-08 13:20:57,652 INFO [AUDIO] assistans/static/audio/be0951cc-64dd-407e-9a81-11b9325e1f38.mp3
+2025-05-08 20:29:46,427 INFO [USER] Приват тут і кандела, чим займається здесь?
+2025-05-08 20:29:47,195 INFO [THREAD] created: thread_8lwzxMVqomTeH5S78rGS0xIC
+2025-05-08 20:29:47,909 INFO [THREAD] message sent: Приват тут і кандела, чим займається здесь?
+2025-05-08 20:29:49,032 INFO [RUN] started: run_QHutIGvjrTGybiXcKBJWKKdB
+2025-05-08 20:29:49,515 INFO [RUN] status: queued
+2025-05-08 20:29:53,988 INFO [RUN] status: in_progress
+2025-05-08 20:29:55,359 INFO [RUN] status: completed
+2025-05-08 20:29:55,601 INFO [MESSAGES] count: 2
+2025-05-08 20:29:55,601 INFO [ASSISTANT] Вибачте, можливо ви маєте на увазі "Приват" і "Кандела"? Це назви компаній або сервісів? Можу допомогти з роз'ясненнями, якщо уточните, про що саме йде мова.
+2025-05-08 20:30:00,131 INFO [AUDIO] assistans/static/audio/583efaf9-aa5f-4943-b23f-97d4fead2fea.mp3
+2025-05-08 20:30:21,115 INFO [USER] То я поздоровався, привіт як дела, як справи, як справи в тебе скажи?
+2025-05-08 20:30:21,493 INFO [THREAD] created: thread_wlxF6VxKb1yJ01Mjn88NEQg8
+2025-05-08 20:30:22,490 INFO [THREAD] message sent: То я поздоровався, привіт як дела, як справи, як справи в тебе скажи?
+2025-05-08 20:30:23,489 INFO [RUN] started: run_ESXLHaCjxObk7IiP6h9tirZh
+2025-05-08 20:30:23,835 INFO [RUN] status: queued
+2025-05-08 20:30:25,540 INFO [RUN] status: completed
+2025-05-08 20:30:25,774 INFO [MESSAGES] count: 2
+2025-05-08 20:30:25,774 INFO [ASSISTANT] Привіт! Усе добре, дякую. Як у вас справи? Чи можу я чимось допомогти щодо платформи аукціонів?
+2025-05-08 20:30:27,945 INFO [AUDIO] assistans/static/audio/98ee4c8b-47b6-48b3-b1bb-f1b087109dac.mp3
+2025-05-08 20:30:42,258 INFO [USER] Як тут все працює, можеш мені коротко розповісти.
+2025-05-08 20:30:42,810 INFO [THREAD] created: thread_uH4esco5ITEd0hpeII8uJYFw
+2025-05-08 20:30:43,517 INFO [THREAD] message sent: Як тут все працює, можеш мені коротко розповісти.
+2025-05-08 20:30:44,713 INFO [RUN] started: run_bH3OUWi5wen4Ps1Ku6bvmmCJ
+2025-05-08 20:30:45,029 INFO [RUN] status: queued
+2025-05-08 20:30:46,422 INFO [RUN] status: completed
+2025-05-08 20:30:46,687 INFO [MESSAGES] count: 2
+2025-05-08 20:30:46,688 INFO [ASSISTANT] Звичайно! Це платформа аукціонів: продавець створює лоти, покупці беруть участь, знижуючи ціну та роблячи ставки. Після закінчення, переможець купує товар за поточну ціну. Баланс поповнюєтесь через сторінку, а голосовий віджет допомагає ставити питання.
+2025-05-08 20:30:51,197 INFO [AUDIO] assistans/static/audio/8c6a8a8f-5a4d-494f-9bc8-193f4144f59b.mp3
