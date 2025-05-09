@@ -21,19 +21,21 @@ class Auction(db.Model):
     updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now(), nullable=False)
     photos = db.Column(JSON, default=list)  # Поле для зберігання шляхів до фото у форматі JSON
     is_confirmed = db.Column(db.Boolean, default=False, nullable=False)  # Чи підтверджено отримання товару
+    main_photo_idx = db.Column(db.Integer, default=0)  # Індекс головного фото
 
     # Відношення з AuctionParticipant
     participants = relationship(
         'AuctionParticipant', back_populates='auction', cascade='all, delete-orphan', lazy='dynamic'
     )
 
-    def __init__(self, title, description, starting_price, seller_id, photos=None):
+    def __init__(self, title, description, starting_price, seller_id, photos=None, main_photo_idx=None):
         self.title = title
         self.description = description
         self.starting_price = starting_price
         self.current_price = starting_price
         self.seller_id = seller_id
         self.photos = photos if photos else []
+        self.main_photo_idx = main_photo_idx if main_photo_idx is not None else 0
 
     def add_participant(self, user):
         if not self.is_user_participant(user):
@@ -144,3 +146,8 @@ class Auction(db.Model):
             self.photos = []
         self.photos.extend(photos)
         db.session.commit()
+
+    def get_main_photo(self):
+        if self.photos and 0 <= (self.main_photo_idx or 0) < len(self.photos):
+            return self.photos[self.main_photo_idx or 0]
+        return self.photos[0] if self.photos else None

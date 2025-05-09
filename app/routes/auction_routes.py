@@ -41,8 +41,12 @@ def create_auction():
 
     # Завантаження фотографій
     photos = []
+    main_photo_idx = int(request.form.get('main_photo_idx', 0))
     if 'photos' in request.files:
         files = request.files.getlist('photos')
+        if len(files) > 10:
+            flash("Можна завантажити не більше 10 фотографій.", "error")
+            return redirect(url_for('user.seller_dashboard', email=current_user.email))
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -56,7 +60,8 @@ def create_auction():
             description=description,
             starting_price=starting_price,
             seller_id=current_user.id,
-            photos=photos
+            photos=photos,
+            main_photo_idx=main_photo_idx if 0 <= main_photo_idx < len(photos) else 0
         )
         db.session.add(new_auction)
         db.session.commit()
