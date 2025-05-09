@@ -12,6 +12,8 @@
     <section class="my-4">
         <h2 class="text-secondary">Баланс платформи</h2>
         <div class="alert alert-info">
+        <a href="{{ url_for('admin.verify_sellers') }}" class="btn btn-outline-info">Перевірити продавців</a>
+    
             <strong>Загальний баланс платформи:</strong> {{ admin_balance }} EUR
         </div>
     </section>

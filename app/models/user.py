@@ -2,6 +2,7 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy.orm import validates
+from sqlalchemy import Boolean
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -15,6 +16,11 @@ class User(UserMixin, db.Model):
     user_type = db.Column(db.String(10), nullable=False)  # "buyer", "seller", "admin"
     is_admin = db.Column(db.Boolean, default=False)  # Поле для адміністратора
     wallet_address = db.Column(db.String(42), nullable=True)  # Адреса криптогаманця
+    verification_document = db.Column(db.String(255))
+    is_verified = db.Column(Boolean, default=False)
+    company_name = db.Column(db.String(255))
+    tax_id = db.Column(db.String(64))
+    
 
     # Зв'язки
     auctions_created = db.relationship('Auction', foreign_keys='Auction.seller_id', backref='seller', lazy=True)

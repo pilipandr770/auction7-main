@@ -80,3 +80,56 @@ def logout():
     else:
         flash("Ви ще не авторизовані", 'error')
     return redirect(url_for('auth.login'))
+
+from werkzeug.utils import secure_filename
+from app.forms.buyer_register_form import BuyerRegisterForm
+from app.forms.seller_register_form import SellerRegisterForm
+import os
+
+@auth_bp.route('/choose-role')
+def choose_role():
+    return render_template('auth/choose_role.html')
+
+@auth_bp.route('/register/buyer', methods=['GET', 'POST'])
+def register_buyer():
+    form = BuyerRegisterForm()
+    if form.validate_on_submit():
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+            user_type='buyer'
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash("Реєстрація покупця успішна", 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/register_buyer.html', form=form)
+
+@auth_bp.route('/register/seller', methods=['GET', 'POST'])
+def register_seller():
+    form = SellerRegisterForm()
+    if form.validate_on_submit():
+        file = form.verification_document.data
+        if not file:
+            flash("Документ для верифікації обов'язковий!", 'error')
+            return render_template('auth/register_seller.html', form=form)
+        filename = secure_filename(file.filename)
+        upload_folder = os.path.join('app', 'static', 'uploads', 'verify')
+        os.makedirs(upload_folder, exist_ok=True)
+        filepath = os.path.join(upload_folder, filename)
+        file.save(filepath)
+
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+            user_type='seller'
+        )
+        user.verification_document = filepath
+        user.is_verified = False
+        db.session.add(user)
+        db.session.commit()
+        flash("Реєстрація продавця успішна. Очікуйте верифікацію.", 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/register_seller.html', form=form)

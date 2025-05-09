@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, flash, redirect, url_for  # add flash, redirect, url_for
 from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.auction import Auction
+from app import db  # add db import
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -24,3 +25,37 @@ def admin_dashboard():
                            users=users, 
                            auctions=auctions, 
                            admin_balance=admin_balance)
+
+
+@admin_bp.route('/verify_sellers', methods=['GET', 'POST'])
+@login_required
+def verify_sellers():
+    if not current_user.is_admin:
+        return "Доступ заборонено", 403
+
+    unverified_sellers = User.query.filter_by(user_type='seller', is_verified=False).all()
+
+    return render_template('admin/verify_sellers.html', sellers=unverified_sellers)
+
+
+
+@admin_bp.route('/verify_seller/<int:user_id>', methods=['POST'])
+@login_required
+def verify_seller_action(user_id):
+    if not current_user.is_admin:
+        return "Доступ заборонено", 403
+
+    seller = User.query.get(user_id)
+    if not seller or seller.user_type != 'seller':
+        flash("Продавця не знайдено", "error")
+        return redirect(url_for('admin.verify_sellers'))
+
+    try:
+        seller.is_verified = True
+        db.session.commit()
+        flash(f"Продавець {seller.username} підтверджений", "success")
+    except Exception as e:
+        db.session.rollback()
+        print(f"[ERROR] Seller verification failed: {e}")
+        flash(f"Помилка підтвердження продавця: {e}", "error")
+    return redirect(url_for('admin.verify_sellers'))

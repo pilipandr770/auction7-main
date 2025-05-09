@@ -55,7 +55,10 @@
 <section class="my-5 text-center">
     <h2 class="text-secondary fw-bold">📢 Долучайтеся просто зараз!</h2>
     <p class="text-muted">Натисніть кнопку нижче, щоб зареєструватися і почати вигідно купувати вже сьогодні.</p>
-    <a href="/auth/register" class="btn btn-warning btn-lg">Зареєструватися</a>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('auth.choose_role') }}" class="btn btn-outline-light">Зареєструватись</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">Увійти</a>
+    </div>
 </section>
 
 <section class="my-5">

@@ -183,10 +183,19 @@ def close_auction(auction_id):
         print(f"[DEBUG] Баланс після списання: {current_user.balance}")
         auction.close_auction(winner_id=current_user.id)
         print(f"[DEBUG] Аукціон закрито: is_active={auction.is_active}, winner_id={auction.winner_id}")
+        # Якщо це AJAX-запит, повертаємо JSON для спливаючого повідомлення
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                "message": "Аукціон успішно закрито! Вітаємо з перемогою.",
+                "participants": auction.total_participants,
+                "final_price": auction.current_price
+            }), 200
         flash("Аукціон успішно закрито! Вітаємо з перемогою.", "success")
     except Exception as e:
         db.session.rollback()
         print(f"[ERROR] Помилка закриття аукціону: {e}")
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"error": f"Не вдалося закрити аукціон. {e}"}), 500
         flash(f"Не вдалося закрити аукціон. {e}", "error")
     return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 

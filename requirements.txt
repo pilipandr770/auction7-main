@@ -9,3 +9,5 @@ web3
 dotenv
 openai>=1.0.0
 openai-whisper
+flask_login
+email_validator
