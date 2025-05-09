@@ -71,7 +71,10 @@
             </div>
             <button type="submit" class="btn btn-warning w-100">Взяти участь</button>
         </form>
-        <button id="view-details-btn" class="btn btn-secondary w-100">Переглянути поточну ціну (1.00 €)</button>
+        <button id="view-details-btn" class="btn btn-secondary w-100">
+            Переглянути поточну ціну (<span id="view-price-btn-amount">1.00</span> €)
+            <span id="discount-badge" class="badge bg-success ms-2" style="display:none;"></span>
+        </button>
         <form id="close-auction-form" method="POST"
             action="{{ url_for('auction.close_auction', auction_id=auction.id) }}">
             <button type="submit" class="btn btn-danger w-100 mt-3">Закрити аукціон</button>
@@ -131,14 +134,41 @@
         }
     });
 
-    // Обробка перегляду деталей аукціону
+    // --- Динамічно оновлюємо ціну перегляду та знижку на кнопці ---
+    async function updateViewPriceBtn() {
+        // За замовчуванням 1.00
+        let price = 1.00;
+        let discount = 0;
+        try {
+            const resp = await fetch(`/auction/view/{{ auction.id }}`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'include',
+                body: JSON.stringify({ preview: true }) // спец. прапорець для попереднього перегляду
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (typeof data.view_price !== 'undefined') price = data.view_price;
+                if (typeof data.discount_percent !== 'undefined') discount = data.discount_percent;
+            }
+        } catch (e) { /* ігноруємо */ }
+        document.getElementById('view-price-btn-amount').textContent = price.toFixed(2);
+        const badge = document.getElementById('discount-badge');
+        if (discount > 0) {
+            badge.textContent = `-${discount}%`;
+            badge.style.display = '';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    updateViewPriceBtn();
+
+    // --- Оновлюємо відображення ціни після перегляду ---
     document.getElementById('view-details-btn')?.addEventListener('click', async function () {
         try {
             const response = await fetch(`/auction/view/{{ auction.id }}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
             });
 
@@ -146,11 +176,20 @@
                 const data = await response.json();
                 document.getElementById('participants-count').textContent = data.participants;
                 document.getElementById('current-price').textContent = data.final_price;
-
+                if (typeof data.view_price !== 'undefined') {
+                    document.getElementById('view-price-btn-amount').textContent = data.view_price.toFixed(2);
+                }
+                if (typeof data.discount_percent !== 'undefined') {
+                    const badge = document.getElementById('discount-badge');
+                    if (data.discount_percent > 0) {
+                        badge.textContent = `-${data.discount_percent}%`;
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
                 const auctionDetails = document.getElementById('auction-details');
                 auctionDetails.style.display = 'block';
-
-                // Ховаємо інформацію через 5 секунд
                 setTimeout(() => {
                     auctionDetails.style.display = 'none';
                 }, 5000);

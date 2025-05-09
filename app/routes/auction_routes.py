@@ -6,6 +6,7 @@ from app import db
 from app.models.auction import Auction
 from app.models.user import User
 from app.models.auction_participant import AuctionParticipant
+from blockchain_payments.payment_token_discount import get_user_discount
 
 auction_bp = Blueprint('auction', __name__)
 
@@ -142,27 +143,57 @@ def view_auction(auction_id):
     if not participant or not participant.has_paid_entry:
         return jsonify({"error": "Ви повинні сплатити за участь, щоб переглянути цю інформацію"}), 403
 
+    # --- Додаємо підтримку попереднього перегляду ціни для UI ---
+    if request.is_json:
+        data = request.get_json()
+        if data.get('preview'):
+            view_price = 1.0
+            discount = 0
+            if current_user.wallet_address:
+                try:
+                    discount = get_user_discount(current_user.wallet_address)
+                except Exception as e:
+                    print(f"[WARN] Не вдалося отримати знижку за токеном: {e}")
+                    discount = 0
+            final_price = view_price * (1 - discount / 100)
+            final_price = round(final_price, 2)
+            return jsonify({
+                "view_price": final_price,
+                "discount_percent": discount
+            })
+
     try:
-        view_price = 1.0  # Вартість перегляду
+        view_price = 1.0  # Базова вартість перегляду
+        discount = 0
+        if current_user.wallet_address:
+            try:
+                discount = get_user_discount(current_user.wallet_address)
+            except Exception as e:
+                print(f"[WARN] Не вдалося отримати знижку за токеном: {e}")
+                discount = 0
+        final_price = view_price * (1 - discount / 100)
+        final_price = round(final_price, 2)
         if participant.has_viewed_price:
             return jsonify({
                 "message": "Ви вже переглядали поточну ціну",
                 "participants": auction.total_participants,
-                "final_price": auction.current_price
+                "final_price": auction.current_price,
+                "discount_percent": discount,
+                "view_price": final_price
             }), 200
 
         # Перевірка балансу покупця
-        if not current_user.can_afford(view_price):
+        if not current_user.can_afford(final_price):
             return jsonify({"error": "Недостатньо коштів на балансі для перегляду"}), 400
 
         # Списання коштів у покупця
-        current_user.deduct_balance(view_price)
+        current_user.deduct_balance(final_price)
 
         # Знаходимо адміністратора
         admin = User.query.filter_by(is_admin=True).first()
         if admin:
             # Додаємо кошти на баланс адміністратора
-            admin.add_balance(view_price)
+            admin.add_balance(final_price)
 
         # Позначаємо, що користувач переглянув ціну
         participant.mark_viewed_price()
@@ -173,14 +204,15 @@ def view_auction(auction_id):
         return jsonify({
             "message": "Перегляд оновлений",
             "participants": auction.total_participants,
-            "final_price": auction.current_price
+            "final_price": auction.current_price,
+            "discount_percent": discount,
+            "view_price": final_price
         }), 200
 
     except Exception as e:
         db.session.rollback()
         print(f"Помилка перегляду аукціону: {e}")
         return jsonify({"error": "Не вдалося оновити перегляд"}), 500
-
 
 @auction_bp.route('/close/<int:auction_id>', methods=['POST'])
 @login_required
