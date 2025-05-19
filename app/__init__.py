@@ -20,6 +20,11 @@ def register_error_handlers(app):
     def internal_error(error):
         lang = session.get('lang', 'ua')
         return render_template('errors/500.html', lang=lang, ui_text=ui_text), 500
+        
+    @app.errorhandler(502)
+    def gateway_error(error):
+        lang = session.get('lang', 'ua')
+        return render_template('errors/502.html', lang=lang, ui_text=ui_text), 502
 
     @app.errorhandler(Exception)
     def handle_exception(e):
@@ -35,6 +40,17 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_secret_key_here'
     app.config['SESSION_PERMANENT'] = False
     app.config['SESSION_TYPE'] = 'filesystem'
+    
+    # Server configuration to help with 502 errors
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
+    app.config['PROPAGATE_EXCEPTIONS'] = True
+    
+    # Connection pooling for better performance
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'pool_recycle': 120,
+        'pool_pre_ping': True,
+    }
 
     # Ініціалізація розширень
     db.init_app(app)
