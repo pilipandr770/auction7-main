@@ -38,6 +38,16 @@ messages = {
         'en': "Not enough balance to view the price.",
         'de': "Nicht genügend Guthaben, um den Preis anzuzeigen."
     },
+    'user_exists': {
+        'ua': "Користувач з такою електронною поштою вже існує.",
+        'en': "User with this email already exists.",
+        'de': "Benutzer mit dieser E-Mail existiert bereits."
+    },
+    'username_exists': {
+        'ua': "Користувач з таким іменем вже існує. Будь ласка, виберіть інше ім'я.",
+        'en': "User with this username already exists. Please choose another username.",
+        'de': "Benutzer mit diesem Benutzernamen existiert bereits. Bitte wählen Sie einen anderen Benutzernamen."
+    },
     # ...add more as needed...
 }
 

@@ -109,11 +109,32 @@ def register_buyer():
     form = BuyerRegisterForm()
     lang = session.get('lang', 'ua')
     if form.validate_on_submit():
+        # Перевірка, чи email вже існує
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash(get_message('user_exists', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_buyer_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_buyer_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_buyer.html', form=form, lang=lang, ui_text=ui_text)
+        
+        # Перевірка, чи username вже існує
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
+            flash(get_message('username_exists', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_buyer_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_buyer_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_buyer.html', form=form, lang=lang, ui_text=ui_text)
+        
         user = User(
             username=form.username.data,
             email=form.email.data,
             password=form.password.data,
-            user_type='buyer'
+            user_type='buyer',
+            language=lang
         )
         db.session.add(user)
         db.session.commit()
@@ -130,6 +151,26 @@ def register_seller():
     form = SellerRegisterForm()
     lang = session.get('lang', 'ua')
     if form.validate_on_submit():
+        # Перевірка, чи email вже існує
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash(get_message('user_exists', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)
+        
+        # Перевірка, чи username вже існує
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
+            flash(get_message('username_exists', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)
+        
         file = form.verification_document.data
         if not file:
             flash(get_message('verification_doc_required', lang), 'error')
@@ -147,7 +188,8 @@ def register_seller():
             username=form.username.data,
             email=form.email.data,
             password=form.password.data,
-            user_type='seller'
+            user_type='seller',
+            language=lang
         )
         user.verification_document = filepath
         user.is_verified = False
