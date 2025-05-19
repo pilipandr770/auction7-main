@@ -28,7 +28,8 @@ async function connectWallet() {
 document.addEventListener('DOMContentLoaded', function () {
     const walletShort = document.getElementById('wallet-address-short');
     const walletCopyStatus = document.getElementById('wallet-copy-status');
-    // Multilingual copy message from data attribute or fallback    let copiedMsg = walletCopyStatus ? walletCopyStatus.textContent : 'Copied!';
+    // Multilingual copy message from data attribute or fallback    
+    let copiedMsg = walletCopyStatus ? walletCopyStatus.textContent : 'Copied!';
     if (walletShort) {
         walletShort.addEventListener('click', function () {
             const fullAddress = walletShort.getAttribute('data-full-address');
@@ -42,6 +43,65 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
+    }
+    
+    // Логіка для відео-фону    const videoBackground = document.getElementById('ocean-background');
+    if (videoBackground) {
+        videoBackground.addEventListener('error', function() {
+            console.error('Помилка завантаження відео');
+            document.body.classList.add('video-fallback');
+            document.querySelector('.video-overlay').style.backgroundImage = 'linear-gradient(rgba(255, 255, 255, 0.9), rgba(245, 245, 245, 0.8))';
+        });
+        
+        // Перевірка на мобільних пристроях
+        if (window.matchMedia("(max-width: 767px)").matches) {
+            // На малих екранах зменшуємо якість відео для кращої продуктивності
+            videoBackground.pause();
+            document.querySelector('.video-overlay').style.background = 'linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.7))';
+            setTimeout(() => videoBackground.play(), 100);
+        }
+        
+        // Динамічне накладання при прокрутці
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollPercentage = scrollPosition / maxScroll;
+            
+            // Збільшуємо прозорість накладання при прокрутці
+            const overlay = document.querySelector('.video-overlay');
+            const baseOpacity = 0.5;
+            const maxAdditionalOpacity = 0.3;
+            const newOpacity = baseOpacity + (scrollPercentage * maxAdditionalOpacity);
+            
+            overlay.style.background = `linear-gradient(rgba(255, 255, 255, ${newOpacity}), rgba(255, 255, 255, ${Math.max(0.4, newOpacity - 0.1)}))`;
+        });
+        
+        // Оптимізація для слабких пристроїв
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let lowPerformance = false;
+        
+        function checkPerformance() {
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 1000) {
+                const fps = frameCount;
+                frameCount = 0;
+                lastTime = now;
+                
+                if (fps < 15 && !lowPerformance) {
+                    lowPerformance = true;
+                    videoBackground.pause();
+                    document.querySelector('.video-overlay').style.background = 'linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8))';
+                }
+            }
+            
+            if (!lowPerformance) {
+                requestAnimationFrame(checkPerformance);
+            }
+        }
+        
+        requestAnimationFrame(checkPerformance);
     }
 
     document.querySelectorAll('.auction-toggle-btn').forEach(function (btn) {

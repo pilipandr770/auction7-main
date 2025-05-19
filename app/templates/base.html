@@ -14,8 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">    <!-- Кастомні стилі з параметром версії для запобігання кешування -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v={{ range(1, 100000) | random }}">
     
-    <!-- Додаткові стилі з інлайн-тегом для гарантованого застосування -->
-    <style>        .text-truncate-container { max-width: 100%; overflow: hidden; }
+    <!-- Додаткові стилі з інлайн-тегом для гарантованого застосування -->    <style>        .text-truncate-container { max-width: 100%; overflow: hidden; }
         .text-truncate-item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
         
         /* Стилі для віджета асистента */
@@ -24,7 +23,47 @@
             word-wrap: break-word;
             word-break: break-word;
             max-width: 100%;
-        }/* Стилі для віджета гаманця */
+        }
+          /* Стилі для відео-фону */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        
+        .video-background video {
+            position: absolute;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+        
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.5));
+            z-index: -1;
+        }
+        
+        @media (max-width: 768px) {
+            .video-overlay {
+                background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+            }
+        }
+        
+        /* Стилі для віджета гаманця */
         .wallet-widget {
             display: flex;
             align-items: center;
@@ -197,9 +236,15 @@
     </style>
 </head>
 
-<body class="bg-light text-dark" style="font-family: 'Roboto', sans-serif;">
+<body class="bg-light text-dark" style="font-family: 'Roboto', sans-serif;">    <!-- Відео-фон -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline id="ocean-background">
+            <source src="{{ url_for('static', filename='videos/ocean_background.mp4') }}" type="video/mp4">
+        </video>
+    </div>
+    <div class="video-overlay"></div>
 
-    <header class="bg-secondary text-white py-3">
+    <header class="bg-secondary text-white py-3" style="background-color: rgba(108, 117, 125, 0.85) !important;">
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark">                <div class="container-fluid">                    <a class="navbar-brand fw-bold home-button" href="/">{{ ui_text('home', lang) }}</a>
                     <div class="d-flex align-items-center w-100 justify-content-between header-content">
@@ -266,10 +311,9 @@
                     </div>
                 </div>
             </nav>
-        </div>
-    </header>    <main class="container py-5">
+        </div>    </header>    <main class="container py-5" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 12px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);">
         {% block content %}{% endblock %}
-    </main>    <footer class="bg-dark text-white py-3 mt-auto">        <div class="container text-center">
+    </main>    <footer class="bg-dark text-white py-3 mt-auto" style="background-color: rgba(33, 37, 41, 0.9) !important;">        <div class="container text-center">
             <p class="mb-2">&copy; 2024 {{ ui_text('app_name', lang) }}. {{ ui_text('rights_reserved', lang) }}</p>
             <div class="d-flex justify-content-center gap-2 flex-wrap footer-buttons">
                 <a href="{{ url_for('main.privacy') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('privacy_policy', lang) }}</a>
