@@ -12,10 +12,10 @@
         <li class="list-group-item bg-light text-muted">Rabatte für das Anzeigen des aktuellen Auktionspreises.</li>
         <li class="list-group-item bg-light text-muted">Erhöhte Gewinnchancen dank aktueller Informationen.</li>
         <li class="list-group-item bg-light text-muted">Servicegebühren mit Token bezahlen.</li>
-    </ul>
-    <div class="d-flex justify-content-center gap-3">
+    </ul>    <div class="d-flex justify-content-center gap-3">
         <a href="{{ url_for('token.buy') }}" class="btn btn-success">Token kaufen</a>
         <a href="{{ url_for('token.airdrop') }}" class="btn btn-primary">Per Airdrop erhalten</a>
+        <a href="{{ url_for('dao.index') }}" class="btn btn-warning">DAO</a>
     </div>
 </div>
 {% endblock %}

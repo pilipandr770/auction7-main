@@ -1,0 +1,21 @@
+{% extends "dao/layout.html" %}
+
+{% block dao_content %}
+<h2>{{ dao_ui.new_proposal[lang] }}</h2>
+
+<form method="post" class="mt-4">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        <label for="title" class="form-label">{{ form.title.label }}</label>
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">{{ form.description.label }}</label>
+        {{ form.description(class="form-control", rows=5) }}
+    </div>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a href="{{ url_for('dao.index') }}" class="btn btn-secondary me-md-2">{{ dao_ui.cancel[lang] }}</a>
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ui_text('dao', lang) }} - {{ ui_text('app_name', lang) }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    {{ dao_ui.menu[lang] }}
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('dao.index') }}" class="list-group-item list-group-item-action">
+                        {{ dao_ui.all_proposals[lang] }}
+                    </a>
+                    <a href="{{ url_for('dao.create') }}" class="list-group-item list-group-item-action">
+                        {{ dao_ui.create_proposal[lang] }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    {% block dao_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

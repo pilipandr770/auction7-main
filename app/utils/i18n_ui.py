@@ -40,11 +40,15 @@ ui_translations = {    'app_name': {
         'ua': "Імпресум",
         'en': "Impressum",
         'de': "Impressum"
-    },
-    'contacts': {
+    },    'contacts': {
         'ua': "Контакти",
         'en': "Contacts",
         'de': "Kontakt"
+    },
+    'dao': {
+        'ua': "ДАО",
+        'en': "DAO",
+        'de': "DAO"
     },
     'rights_reserved': {
         'ua': "Всі права захищені.",

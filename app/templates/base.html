@@ -314,11 +314,11 @@
         </div>    </header>    <main class="container py-5" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 12px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);">
         {% block content %}{% endblock %}
     </main>    <footer class="bg-dark text-white py-3 mt-auto" style="background-color: rgba(33, 37, 41, 0.9) !important;">        <div class="container text-center">
-            <p class="mb-2">&copy; 2024 {{ ui_text('app_name', lang) }}. {{ ui_text('rights_reserved', lang) }}</p>
-            <div class="d-flex justify-content-center gap-2 flex-wrap footer-buttons">
+            <p class="mb-2">&copy; 2024 {{ ui_text('app_name', lang) }}. {{ ui_text('rights_reserved', lang) }}</p>            <div class="d-flex justify-content-center gap-2 flex-wrap footer-buttons">
                 <a href="{{ url_for('main.privacy') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('privacy_policy', lang) }}</a>
                 <a href="{{ url_for('main.impressum') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('impressum', lang) }}</a>
                 <a href="{{ url_for('main.contacts') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('contacts', lang) }}</a>
+                <a href="{{ url_for('dao.index') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('dao', lang) }}</a>
             </div>
         </div>
     </footer>    <!-- Віджет асистента OpenAI (чат у правому нижньому куті) -->

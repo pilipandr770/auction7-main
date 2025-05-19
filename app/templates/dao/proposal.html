@@ -1,0 +1,107 @@
+{% extends "dao/layout.html" %}
+
+{% block dao_content %}
+<div class="mb-4">
+    <h2>{{ proposal.title }}</h2>
+    <p class="text-muted">{{ dao_ui.created[lang] }}: {{ proposal.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+    <hr>
+    <div class="proposal-description mb-4">
+        {{ proposal.description|safe }}
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            {{ dao_ui.voting_results[lang] }}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="text-center mb-3">
+                        <h5 class="text-success">👍 {{ dao_ui.for[lang] }} ({{ proposal.votes_for }})</h5>
+                        <div class="progress">
+                            {% set total = proposal.votes_for + proposal.votes_against %}
+                            {% set for_percent = (proposal.votes_for / total * 100) if total > 0 else 0 %}
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ for_percent }}%" 
+                                aria-valuenow="{{ for_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ "%.1f"|format(for_percent) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-center mb-3">
+                        <h5 class="text-danger">👎 {{ dao_ui.against[lang] }} ({{ proposal.votes_against }})</h5>
+                        <div class="progress">
+                            {% set against_percent = (proposal.votes_against / total * 100) if total > 0 else 0 %}
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ against_percent }}%" 
+                                aria-valuenow="{{ against_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ "%.1f"|format(against_percent) }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            {{ dao_ui.vote_now[lang] }}
+        </div>
+        <div class="card-body">
+            {% if current_user.is_authenticated %}
+                {% if has_tokens %}
+                    {% if already_voted %}
+                    <div class="alert alert-info">
+                        {% if lang == 'ua' %}
+                        Ви вже проголосували за цю пропозицію
+                        {% elif lang == 'de' %}
+                        Sie haben bereits über diesen Vorschlag abgestimmt
+                        {% else %}
+                        You have already voted on this proposal
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <form method="post" action="{{ url_for('dao.vote', proposal_id=proposal.id) }}">
+                        <div class="d-flex justify-content-between">
+                            <button name="vote_type" value="for" type="submit" class="btn btn-success">
+                                👍 {{ dao_ui.vote_for[lang] }}
+                            </button>
+                            <button name="vote_type" value="against" type="submit" class="btn btn-danger">
+                                👎 {{ dao_ui.vote_against[lang] }}
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        {% if lang == 'ua' %}
+                        Вам потрібно мати токени AUKTO для голосування за пропозиції ДАО
+                        <a href="{{ url_for('token.token_info') }}" class="btn btn-warning mt-2">Отримати токени</a>
+                        {% elif lang == 'de' %}
+                        Sie benötigen AUKTO-Token, um über DAO-Vorschläge abzustimmen
+                        <a href="{{ url_for('token.token_info') }}" class="btn btn-warning mt-2">Token erhalten</a>
+                        {% else %}
+                        You need to have AUKTO tokens to vote on DAO proposals
+                        <a href="{{ url_for('token.token_info') }}" class="btn btn-warning mt-2">Get tokens</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-warning">
+                    {% if lang == 'ua' %}
+                    Будь ласка, увійдіть в систему, щоб голосувати за пропозиції ДАО
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-warning mt-2">Увійти</a>
+                    {% elif lang == 'de' %}
+                    Bitte melden Sie sich an, um über DAO-Vorschläge abzustimmen
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-warning mt-2">Anmelden</a>
+                    {% else %}
+                    Please log in to vote on DAO proposals
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-warning mt-2">Log in</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

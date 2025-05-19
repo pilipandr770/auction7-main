@@ -12,10 +12,10 @@
         <li class="list-group-item bg-light text-muted">Discounts for viewing the current auction price.</li>
         <li class="list-group-item bg-light text-muted">Increased chances to win thanks to up-to-date information.</li>
         <li class="list-group-item bg-light text-muted">Pay service fees with tokens.</li>
-    </ul>
-    <div class="d-flex justify-content-center gap-3">
+    </ul>    <div class="d-flex justify-content-center gap-3">
         <a href="{{ url_for('token.buy') }}" class="btn btn-success">Buy Token</a>
         <a href="{{ url_for('token.airdrop') }}" class="btn btn-primary">Get via airdrop</a>
+        <a href="{{ url_for('dao.index') }}" class="btn btn-warning">DAO</a>
     </div>
 </div>
 {% endblock %}

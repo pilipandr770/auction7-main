@@ -12,10 +12,10 @@
         <li class="list-group-item bg-light text-muted">Знижки на перегляд поточної ціни в аукціонах.</li>
         <li class="list-group-item bg-light text-muted">Підвищення шансів виграти завдяки актуальній інформації.</li>
         <li class="list-group-item bg-light text-muted">Оплата сервісних зборів токенами.</li>
-    </ul>
-    <div class="d-flex justify-content-center gap-3">
+    </ul>    <div class="d-flex justify-content-center gap-3">
         <a href="{{ url_for('token.buy') }}" class="btn btn-success">Купити токен</a>
         <a href="{{ url_for('token.airdrop') }}" class="btn btn-primary">Отримати через airdrop</a>
+        <a href="{{ url_for('dao.index') }}" class="btn btn-warning">ДАО</a>
     </div>
 </div>
 {% endblock %}

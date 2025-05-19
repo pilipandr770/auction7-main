@@ -56,9 +56,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
-
-    # Завантаження користувача
+    login_manager.login_view = 'auth.login'    # Завантаження користувача
     from app.models.user import User  # Імпорт моделі User
     @login_manager.user_loader
     def load_user(user_id):
@@ -68,7 +66,9 @@ def create_app():
     from app.models.auction import Auction
     from app.models.auction_participant import AuctionParticipant
     from app.models.payment import Payment
-
+    from app.models.token import Token  # Import Token model
+    from dao.models import Proposal, Vote  # Import DAO models
+    
     # Реєстрація маршрутів
     from app.routes.auth_routes import auth_bp
     from app.routes.user_routes import user_bp
@@ -78,6 +78,7 @@ def create_app():
     from assistans.routes import assistant_bp
     from app.app.verification.routes import verification_bp
     from app.app.verification.admin_routes import verification_admin_bp
+    from dao.views import dao_bp  # Імпорт DAO blueprint
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
@@ -87,6 +88,7 @@ def create_app():
     app.register_blueprint(assistant_bp)
     app.register_blueprint(verification_bp)
     app.register_blueprint(verification_admin_bp)
+    app.register_blueprint(dao_bp, url_prefix='/dao')  # Реєстрація DAO blueprint
 
     # Додаємо blueprint для токен-сторінок
     from app.routes.token_routes import token_bp
