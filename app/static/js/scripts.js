@@ -28,11 +28,10 @@ async function connectWallet() {
 document.addEventListener('DOMContentLoaded', function () {
     const walletShort = document.getElementById('wallet-address-short');
     const walletCopyStatus = document.getElementById('wallet-copy-status');
-    // Multilingual copy message from data attribute or fallback
-    let copiedMsg = walletCopyStatus ? walletCopyStatus.textContent : 'Copied!';
+    // Multilingual copy message from data attribute or fallback    let copiedMsg = walletCopyStatus ? walletCopyStatus.textContent : 'Copied!';
     if (walletShort) {
         walletShort.addEventListener('click', function () {
-            const fullAddress = '{{ current_user.wallet_address }}';
+            const fullAddress = walletShort.getAttribute('data-full-address');
             navigator.clipboard.writeText(fullAddress).then(() => {
                 if (walletCopyStatus) {
                     walletCopyStatus.style.display = 'inline';

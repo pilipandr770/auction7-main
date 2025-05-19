@@ -1,5 +1,125 @@
 {% extends 'base.html' %}
-{% block title %}Verkäufer-Dashboard{% endblock %}
+{% block title %}{{ ui_text('seller_dashboard_title', lang) }}{% endblock %}
 {% block content %}
-<!-- German translation of seller_dashboard.html -->
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h1 class="text-secondary">{{ ui_text('seller_dashboard_title', lang) }}</h1>
+    </div>
+
+    <!-- Verkäuferinformationen -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <h3 class="card-title text-warning">{{ ui_text('seller_info_title', lang) }}</h3>
+            <p><strong>{{ ui_text('username', lang) }}:</strong> {{ user.username }}</p>
+            <p><strong>{{ ui_text('email', lang) }}:</strong> {{ user.email }}</p>
+            <p><strong>{{ ui_text('balance_completed_auctions', lang) }}:</strong> {{ balance_from_completed | round(2) }} UAH</p>
+        </div>
+    </div>
+
+    <!-- Kryptohinweis -->
+    <div class="alert alert-info mb-4">
+        <b>{{ ui_text('crypto_functions', lang) }}:</b> {{ ui_text('auction_payments_info', lang) }}
+    </div>
+
+    <!-- Auktion erstellen Formular -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <h3 class="card-title text-secondary">{{ ui_text('create_auction_title', lang) }}</h3>
+            <form action="/auction/create" method="POST" enctype="multipart/form-data" class="row g-3">
+                <div class="col-12">
+                    <label for="title" class="form-label">{{ ui_text('title', lang) }}:</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label for="description" class="form-label">{{ ui_text('description', lang) }}:</label>
+                    <textarea id="description" name="description" class="form-control" required></textarea>
+                </div>
+                <div class="col-12">
+                    <label for="starting_price" class="form-label">{{ ui_text('starting_price', lang) }}:</label>
+                    <input type="number" id="starting_price" name="starting_price" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label for="photos" class="form-label">{{ ui_text('photos', lang) }}:</label>
+                    <input type="file" id="photos" name="photos" class="form-control" multiple accept="image/*">
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-warning w-50">{{ ui_text('create_auction', lang) }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Meine Auktionen -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <h3 class="card-title text-secondary">{{ ui_text('my_auctions', lang) }}</h3>
+            {% if auctions %}
+            <ul class="list-group">
+                {% for auction in auctions %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="text-secondary">{{ auction.title }}</h5>
+                        <p class="text-muted">{{ auction.description }}</p>
+                        <p class="text-muted"><strong>{{ ui_text('starting_price', lang) }}:</strong> {{ auction.starting_price }} UAH</p>
+                        <p class="text-muted"><strong>{{ ui_text('status', lang) }}:</strong>
+                            <span class="{{ 'text-success' if auction.is_active else 'text-danger' }}">
+                                {{ ui_text('active', lang) if auction.is_active else ui_text('closed', lang) }}
+                            </span>
+                        </p>
+                        {% if not auction.is_active %}
+                        <p><strong>{{ ui_text('earned_from_auction', lang) }}:</strong> {{ auction.total_earnings | round(2) }} UAH</p>
+                        <p><strong>{{ ui_text('participants_count', lang) }}:</strong> {{ auction.total_participants }}</p>
+                        {% if auction.winner %}
+                        <p><strong>{{ ui_text('winner', lang) }}:</strong></p>
+                        <ul>
+                            <li><strong>{{ ui_text('name', lang) }}:</strong> {{ auction.winner.username }}</li>
+                            <li><strong>{{ ui_text('email', lang) }}:</strong> {{ auction.winner.email }}</li>
+                        </ul>
+                        <div class="alert alert-secondary p-2 mt-2">
+                            <b>{{ ui_text('payment_status', lang) }}:</b> {{ ui_text('awaiting_confirmation', lang) }}
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted text-center">{{ ui_text('no_created_auctions', lang) }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Verkäuferhilfe -->
+    <div class="card shadow-sm border-0 mt-5">
+        <div class="card-body">
+            <h3 class="card-title text-primary">{{ ui_text('how_to_set_prices', lang) }}</h3>
+            <p>{{ ui_text('fair_market_price_info', lang) }}</p>
+            <p>{{ ui_text('lower_starting_price_more_chances', lang) }}</p>
+            
+            <h5>{{ ui_text('entry_price_importance', lang) }}</h5>
+            <p>{{ ui_text('participation_fee_info', lang) }}</p>
+            <p>{{ ui_text('set_entry_price_to_attract_participants', lang) }}</p>
+            <ul>
+                <li><b>1000 EUR</b> — {{ ui_text('very_few_participants', lang) }}.</li>
+                <li><b>100 EUR</b> — {{ ui_text('few_participants', lang) }}.</li>
+                <li><b>10 EUR</b> — {{ ui_text('enough_participants', lang) }}.</li>
+                <li><b>1 EUR</b> — {{ ui_text('maximum_interested', lang) }}.</li>
+            </ul>
+
+            <h5>{{ ui_text('example', lang) }}:</h5>
+            <p>{{ ui_text('selling_mercedes_example', lang) }}</p>
+
+            <h5>{{ ui_text('caring_for_participants', lang) }}</h5>
+            <p>{{ ui_text('founders_guarantee_fairness', lang) }}</p>
+            <ul>
+                <li>{{ ui_text('buyer_receives_goods', lang) }}.</li>
+                <li>{{ ui_text('seller_receives_payments', lang) }}.</li>
+                <li>{{ ui_text('other_participants_lose_entry', lang) }}.</li>
+            </ul>
+
+            <p><strong>{{ ui_text('seller_risk_free', lang) }}</strong> — {{ ui_text('seller_paid_quickly_or_later', lang) }}.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}

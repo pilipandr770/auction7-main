@@ -1,9 +1,13 @@
 # UI translations for base.html and common elements
-ui_translations = {
-    'app_name': {
-        'ua': "Аукціонний Застосунок",
-        'en': "Auction App",
-        'de': "Auktionsanwendung"
+ui_translations = {    'app_name': {
+        'ua': "Аукціон",
+        'en': "Auction",
+        'de': "Auktion"
+    },
+    'home': {
+        'ua': "Дім",
+        'en': "Home",
+        'de': "Haus"
     },
     'copy_address': {
         'ua': "Скопіювати адресу",
@@ -14,26 +18,23 @@ ui_translations = {
         'ua': "Скопійовано!",
         'en': "Copied!",
         'de': "Kopiert!"
-    },
-    'connect_wallet': {
-        'ua': "Підключити гаманець",
-        'en': "Connect wallet",
-        'de': "Wallet verbinden"
-    },
-    'token_discount': {
-        'ua': "Знижка за токен",
-        'en': "Token discount",
-        'de': "Token-Rabatt"
+    },    'connect_wallet': {
+        'ua': "Гаманець",
+        'en': "Wallet",
+        'de': "Wallet"
+    },    'token_discount': {
+        'ua': "Знижка",
+        'en': "Discount",
+        'de': "Rabatt"
     },
     'language': {
         'ua': "Мова",
         'en': "Language",
         'de': "Sprache"
-    },
-    'privacy_policy': {
-        'ua': "Політика конфіденційності",
-        'en': "Privacy Policy",
-        'de': "Datenschutzrichtlinie"
+    },    'privacy_policy': {
+        'ua': "Приватність",
+        'en': "Privacy",
+        'de': "Datenschutz"
     },
     'impressum': {
         'ua': "Імпресум",
@@ -106,14 +107,14 @@ ui_translations = {
         'de': "Chatbot"
     },
     'home_title': {
-        'ua': "Головна сторінка - Аукціонний Застосунок",
-        'en': "Home Page - Auction App",
-        'de': "Startseite - Auktionsanwendung"
+        'ua': "Головна сторінка - Аукціон",
+        'en': "Home Page - Auction",
+        'de': "Startseite - Auktion"
     },
     'welcome_header': {
-        'ua': "Ласкаво просимо до нашого аукціонного застосунку!",
-        'en': "Welcome to our auction app!",
-        'de': "Willkommen zu unserer Auktionsanwendung!"
+        'ua': "Ласкаво просимо до нашого аукціону!",
+        'en': "Welcome to our auction!",
+        'de': "Willkommen zu unserer Auktion!"
     },
     'welcome_text': {
         'ua': "Наш сервіс дозволяє продавати та купувати товари за унікальною системою аукціонів. Зареєструйтесь, щоб стати частиною нашої спільноти і почати свою першу угоду!",
@@ -471,5 +472,209 @@ ui_translations.update({
         'ua': "Немає доступних аукціонів.",
         'en': "No available auctions.",
         'de': "Keine verfügbaren Auktionen."
+    },
+})
+
+# Додаємо переклади для seller_dashboard
+ui_translations.update({
+    'seller_info_title': {
+        'ua': "Інформація про продавця",
+        'en': "Seller Information",
+        'de': "Verkäufer Information"
+    },
+    'balance_completed_auctions': {
+        'ua': "Баланс із завершених аукціонів",
+        'en': "Balance from completed auctions",
+        'de': "Guthaben aus abgeschlossenen Auktionen"
+    },
+    'crypto_functions': {
+        'ua': "Криптофункції",
+        'en': "Crypto functions",
+        'de': "Krypto-Funktionen"
+    },
+    'auction_payments_info': {
+        'ua': "Платежі за аукціони проходять як звичайним способом, так і через криптовалюту. Ви отримаєте повідомлення про успішний платіж.",
+        'en': "Auction payments are processed both in the traditional way and via cryptocurrency. You will be notified of successful payments.",
+        'de': "Auktionszahlungen werden sowohl auf herkömmliche Weise als auch über Kryptowährung abgewickelt. Sie werden über erfolgreiche Zahlungen benachrichtigt."
+    },
+    'create_auction_title': {
+        'ua': "Створити новий аукціон",
+        'en': "Create New Auction",
+        'de': "Neue Auktion erstellen"
+    },
+    'title': {
+        'ua': "Назва",
+        'en': "Title",
+        'de': "Titel"
+    },
+    'description': {
+        'ua': "Опис",
+        'en': "Description",
+        'de': "Beschreibung"
+    },
+    'starting_price': {
+        'ua': "Початкова ціна",
+        'en': "Starting Price",
+        'de': "Startpreis"
+    },
+    'photos': {
+        'ua': "Фотографії",
+        'en': "Photos",
+        'de': "Fotos"
+    },
+    'create_auction': {
+        'ua': "Створити аукціон",
+        'en': "Create Auction",
+        'de': "Auktion erstellen"
+    },
+    'my_auctions': {
+        'ua': "Мої аукціони",
+        'en': "My Auctions",
+        'de': "Meine Auktionen"
+    },
+    'status': {
+        'ua': "Статус",
+        'en': "Status",
+        'de': "Status"
+    },
+    'active': {
+        'ua': "Активний",
+        'en': "Active",
+        'de': "Aktiv"
+    },
+    'closed': {
+        'ua': "Закритий",
+        'en': "Closed",
+        'de': "Geschlossen"
+    },
+    'earned_from_auction': {
+        'ua': "Зароблено з аукціону",
+        'en': "Earned from auction",
+        'de': "Aus der Auktion verdient"
+    },
+    'participants_count': {
+        'ua': "Кількість учасників",
+        'en': "Participants count",
+        'de': "Teilnehmeranzahl"
+    },
+    'winner': {
+        'ua': "Переможець",
+        'en': "Winner",
+        'de': "Gewinner"
+    },
+    'name': {
+        'ua': "Ім'я",
+        'en': "Name",
+        'de': "Name"
+    },
+    'payment_status': {
+        'ua': "Статус оплати",
+        'en': "Payment status",
+        'de': "Zahlungsstatus"
+    },
+    'awaiting_confirmation': {
+        'ua': "Очікується підтвердження",
+        'en': "Awaiting confirmation",
+        'de': "Warten auf Bestätigung"
+    },
+    'no_created_auctions': {
+        'ua': "Ви ще не створили жодного аукціону",
+        'en': "You haven't created any auctions yet",
+        'de': "Sie haben noch keine Auktionen erstellt"
+    },
+    'how_to_set_prices': {
+        'ua': "Як встановити ціни",
+        'en': "How to set prices",
+        'de': "Wie man Preise festlegt"
+    },
+    'fair_market_price_info': {
+        'ua': "Справедлива ринкова ціна - це ціна, за якою ви б продали товар за звичайних умов.",
+        'en': "Fair market price is the price at which you would sell the item under normal conditions.",
+        'de': "Der faire Marktpreis ist der Preis, zu dem Sie den Artikel unter normalen Bedingungen verkaufen würden."
+    },
+    'lower_starting_price_more_chances': {
+        'ua': "Чим нижче початкова ціна, тим більше шансів на успішний аукціон.",
+        'en': "The lower the starting price, the more chances for a successful auction.",
+        'de': "Je niedriger der Startpreis, desto mehr Chancen für eine erfolgreiche Auktion."
+    },
+    'entry_price_importance': {
+        'ua': "Важливість вступного внеску",
+        'en': "Importance of entry fee",
+        'de': "Bedeutung der Eintrittsgebühr"
+    },
+    'participation_fee_info': {
+        'ua': "Учасники платять вступний внесок, який складає 10% від початкової ціни.",
+        'en': "Participants pay an entry fee which is 10% of the starting price.",
+        'de': "Teilnehmer zahlen eine Eintrittsgebühr in Höhe von 10% des Startpreises."
+    },
+    'set_entry_price_to_attract_participants': {
+        'ua': "Встановіть розумний вступний внесок, щоб привабити учасників:",
+        'en': "Set a reasonable entry fee to attract participants:",
+        'de': "Legen Sie eine angemessene Eintrittsgebühr fest, um Teilnehmer anzuziehen:"
+    },
+    'very_few_participants': {
+        'ua': "дуже мало учасників",
+        'en': "very few participants",
+        'de': "sehr wenige Teilnehmer"
+    },
+    'few_participants': {
+        'ua': "мало учасників",
+        'en': "few participants",
+        'de': "wenige Teilnehmer"
+    },
+    'enough_participants': {
+        'ua': "достатньо учасників",
+        'en': "enough participants",
+        'de': "genügend Teilnehmer"
+    },
+    'maximum_interested': {
+        'ua': "максимум зацікавлених",
+        'en': "maximum interested",
+        'de': "maximal interessiert"
+    },
+    'example': {
+        'ua': "Приклад",
+        'en': "Example",
+        'de': "Beispiel"
+    },
+    'selling_mercedes_example': {
+        'ua': "Якщо ви продаєте Mercedes за ринковою ціною 10 000 євро, встановивши початкову ціну в 5 000 євро, вступний внесок складе 500 євро, що може бути високим. Краще встановити початкову ціну в 1 000 євро, щоб вступний внесок був лише 100 євро.",
+        'en': "If you're selling a Mercedes with market price of 10,000 euros, setting a starting price of 5,000 euros would mean an entry fee of 500 euros, which can be high. It's better to set a starting price of 1,000 euros so the entry fee is only 100 euros.",
+        'de': "Wenn Sie einen Mercedes mit einem Marktpreis von 10.000 Euro verkaufen und einen Startpreis von 5.000 Euro festlegen, würde die Eintrittsgebühr 500 Euro betragen, was hoch sein kann. Es ist besser, einen Startpreis von 1.000 Euro festzulegen, sodass die Eintrittsgebühr nur 100 Euro beträgt."
+    },
+    'caring_for_participants': {
+        'ua': "Турбота про учасників",
+        'en': "Caring for participants",
+        'de': "Sorge für Teilnehmer"
+    },
+    'founders_guarantee_fairness': {
+        'ua': "Засновники гарантують справедливість для всіх сторін:",
+        'en': "The founders guarantee fairness for all parties:",
+        'de': "Die Gründer garantieren Fairness für alle Parteien:"
+    },
+    'buyer_receives_goods': {
+        'ua': "Покупець отримує товар",
+        'en': "Buyer receives the goods",
+        'de': "Käufer erhält die Waren"
+    },
+    'seller_receives_payments': {
+        'ua': "Продавець отримує платежі",
+        'en': "Seller receives payments",
+        'de': "Verkäufer erhält Zahlungen"
+    },
+    'other_participants_lose_entry': {
+        'ua': "Інші учасники втрачають вступний внесок",
+        'en': "Other participants lose their entry fee",
+        'de': "Andere Teilnehmer verlieren ihre Eintrittsgebühr"
+    },
+    'seller_risk_free': {
+        'ua': "Для продавця ризик відсутній",
+        'en': "There is no risk for the seller",
+        'de': "Es gibt kein Risiko für den Verkäufer"
+    },
+    'seller_paid_quickly_or_later': {
+        'ua': "Ви отримаєте оплату швидко або пізніше, але в будь-якому випадку - гарантовано",
+        'en': "You will receive payment quickly or later, but in any case - guaranteed",
+        'de': "Sie erhalten die Zahlung schnell oder später, aber in jedem Fall garantiert"
     },
 })

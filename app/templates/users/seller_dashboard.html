@@ -62,10 +62,9 @@
                     <div>
                         <h5 class="text-secondary">{{ auction.title }}</h5>
                         <p class="text-muted">{{ auction.description }}</p>
-                        <p class="text-muted"><strong>{{ ui_text('starting_price', lang) }}:</strong> {{ auction.starting_price }} грн</p>
-                        <p class="text-muted"><strong>{{ ui_text('status', lang) }}:</strong>
+                        <p class="text-muted"><strong>{{ ui_text('starting_price', lang) }}:</strong> {{ auction.starting_price }} грн</p>                        <p class="text-muted"><strong>{{ ui_text('status', lang) }}:</strong>
                             <span class="{{ 'text-success' if auction.is_active else 'text-danger' }}">
-                                {{ 'Активний' if auction.is_active else 'Закритий' }}
+                                {{ ui_text('active', lang) if auction.is_active else ui_text('closed', lang) }}
                             </span>
                         </p>
                         {% if not auction.is_active %}

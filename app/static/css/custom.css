@@ -1,18 +1,42 @@
 /* Підключення Bootstrap */
 @import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
+/* Google шрифти для кращої типографіки */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap');
 
-/* Налаштування базових кольорів */
+/* Розширені налаштування базових кольорів */
 :root {
+    /* Основна палітра */
     --main-bg: #fef6e4;
-    /* Бежевий */
     --main-color: #d5a021;
-    /* Золотистий */
     --secondary-color: #a47449;
-    /* Коричневий */
     --neutral-gray: #6c757d;
-    /* Сірий */
     --text-color: #3d3d3d;
-    /* Теплий чорний */
+    
+    /* Додаткові кольори */
+    --accent-blue: #3772ff;
+    --accent-green: #2fb380;
+    --accent-red: #e63946;
+    --accent-purple: #6246ea;
+    
+    /* Кольори для темної теми */
+    --dark-bg: #2b2d42;
+    --dark-secondary: #444857;
+    --dark-text: #edf2f4;
+    
+    /* Градієнти */
+    --gold-gradient: linear-gradient(135deg, #ffd700, #d5a021);
+    --purple-gradient: linear-gradient(135deg, #6246ea, #a36ae8);
+    --blue-gradient: linear-gradient(135deg, #3772ff, #4da6ff);
+    
+    /* Тіні */
+    --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+    --button-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    
+    /* Анімації */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
 /* Основний стиль для body */
@@ -22,29 +46,127 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color var(--transition-normal);
 }
 
-/* Заголовки */
-h1,
-h2,
-h3 {
+/* Адаптивні медіа-запити */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .auction-card-fixed {
+        min-height: 350px;
+        max-height: 350px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Додаткові адаптивні стилі для дуже малих екранів */
+@media (max-width: 480px) {
+    body {
+        font-size: 13px;
+    }
+    
+    .container {
+        padding: 12px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    h3 {
+        font-size: 16px;
+    }
+    
+    .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .auction-card-fixed {
+        min-height: 340px;
+        max-height: 340px;
+    }
+    
+    .auction-card-img {
+        height: 150px;
+    }
+}
+
+/* Покращені заголовки */
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
     color: var(--main-color);
     text-align: center;
     margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Контейнер */
+h1 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+h1:after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: var(--gold-gradient);
+    margin: 15px auto 0;
+    border-radius: 2px;
+    transition: width var(--transition-normal);
+}
+
+h1:hover:after {
+    width: 120px;
+}
+
+/* Покращений контейнер */
 .container {
     max-width: 900px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 25px;
     background-color: #fff;
     border: 1px solid var(--neutral-gray);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
-/* Кнопки */
+.container:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+/* Покращені кнопки з анімацією */
 button,
 .btn {
     background-color: var(--main-color);
@@ -52,148 +174,415 @@ button,
     color: #fff;
     font-size: 16px;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: var(--button-shadow);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 button:hover,
 .btn:hover {
     background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Яскраві стилі для outline-кнопок */
+button:active,
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ефект хвилі при натисканні на кнопку */
+.btn::after {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.6s, opacity 0.6s;
+    z-index: -1;
+}
+
+.btn:active::after {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+    transition: 0s;
+}
+
+/* Стилі для кнопок у футері */
+.footer-btn {
+    min-width: 85px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+@media (max-width: 576px) {
+    .footer-btn {
+        min-width: 75px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-btn {
+        min-width: 70px;
+        font-size: 0.75rem;
+        padding: 2px 5px;
+    }
+}
+
+/* Ефект хвилі при натисканні на кнопку */
+.btn::after {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.6s, opacity 0.6s;
+    z-index: -1;
+}
+
+.btn:active::after {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+    transition: 0s;
+}
+
+/* Стилі для кнопок у футері */
+.footer-btn {
+    min-width: 85px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+@media (max-width: 576px) {
+    .footer-btn {
+        min-width: 75px;
+        font-size: 0.8rem;
+        padding: 3px 6px;
+    }
+}
+
+/* Вдосконалені стилі для outline-кнопок */
 .btn-outline-warning {
     color: #fff !important;
-    background-color: var(--main-color) !important;
+    background: var(--gold-gradient) !important;
     border: 1.5px solid var(--main-color) !important;
+    transition: all var(--transition-normal) !important;
 }
+
 .btn-outline-warning:hover, .btn-outline-warning:focus {
-    background-color: var(--secondary-color) !important;
+    background: linear-gradient(135deg, #d5a021, #b98b1d) !important;
     border-color: var(--secondary-color) !important;
-    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(213, 160, 33, 0.3);
 }
 
 .btn-outline-primary {
     color: #fff !important;
-    background-color: #0d6efd !important;
+    background: var(--blue-gradient) !important;
     border: 1.5px solid #0d6efd !important;
+    transition: all var(--transition-normal) !important;
 }
+
 .btn-outline-primary:hover, .btn-outline-primary:focus {
-    background-color: #0a58ca !important;
+    background: linear-gradient(135deg, #0d6efd, #0a58ca) !important;
     border-color: #0a58ca !important;
-    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.3);
 }
 
 .btn-outline-secondary {
     color: #fff !important;
     background-color: var(--neutral-gray) !important;
     border: 1.5px solid var(--neutral-gray) !important;
+    transition: all var(--transition-normal) !important;
 }
+
 .btn-outline-secondary:hover, .btn-outline-secondary:focus {
     background-color: #343a40 !important;
     border-color: #343a40 !important;
     color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(108, 117, 125, 0.3);
 }
 
-/* Форми */
+/* Вдосконалені форми з анімацією */
 form input,
-form textarea {
+form textarea,
+form select {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin: 10px 0;
     border: 1px solid var(--neutral-gray);
-    border-radius: 5px;
-    transition: border-color 0.3s ease;
+    border-radius: 6px;
+    transition: all var(--transition-normal);
+    background-color: #f8f9fa;
 }
 
 form input:focus,
-form textarea:focus {
+form textarea:focus,
+form select:focus {
     border-color: var(--main-color);
     outline: none;
+    box-shadow: 0 0 0 2px rgba(213, 160, 33, 0.2);
+    background-color: #fff;
+    transform: translateY(-2px);
 }
 
-/* Таблиці */
+form label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+    color: var(--secondary-color);
+    transition: color var(--transition-fast);
+}
+
+form label:hover {
+    color: var(--main-color);
+}
+
+/* Вдосконалені таблиці з анімацією при наведенні */
 table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
 }
 
 table th,
 table td {
-    padding: 10px;
+    padding: 12px 15px;
     text-align: left;
-    border: 1px solid var(--neutral-gray);
+    border: 1px solid #e0e0e0;
 }
 
 table th {
-    background-color: var(--main-color);
+    background: var(--gold-gradient);
     color: #fff;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+table tr {
+    transition: all var(--transition-fast);
 }
 
 table tr:hover {
     background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    position: relative;
 }
 
-/* Посилання */
+table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Вдосконалені посилання з анімацією */
 a {
     color: var(--main-color);
     text-decoration: none;
+    position: relative;
+    transition: color var(--transition-fast);
 }
 
 a:hover {
-    text-decoration: underline;
+    color: var(--secondary-color);
 }
 
-/* Повідомлення */
+a:not(.btn):after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background: var(--gold-gradient);
+    transition: width var(--transition-normal);
+}
+
+a:not(.btn):hover:after {
+    width: 100%;
+}
+
+/* Вдосконалені повідомлення з анімацією */
 .flash {
-    padding: 10px;
+    padding: 15px;
     margin-bottom: 20px;
-    border-radius: 5px;
+    border-radius: 8px;
+    border-left: 5px solid;
+    box-shadow: var(--card-shadow);
+    animation: slideIn var(--transition-normal);
+    position: relative;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .flash.success {
     background-color: #d4edda;
     color: #155724;
+    border-left-color: var(--accent-green);
 }
 
 .flash.error {
     background-color: #f8d7da;
     color: #721c24;
+    border-left-color: var(--accent-red);
 }
 
-/* Навігаційне меню */
+.flash.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left-color: var(--accent-blue);
+}
+
+.flash.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left-color: var(--main-color);
+}
+
+.flash .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--transition-fast);
+}
+
+.flash .close:hover {
+    opacity: 1;
+}
+
+/* Покращений навігаційний блок */
+nav {
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
 nav a {
     padding: 10px 15px;
     display: inline-block;
-    border-radius: 5px;
+    border-radius: 6px;
     margin-right: 10px;
     background-color: var(--main-color);
     color: #fff;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
 }
 
 nav a:hover {
     background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--button-shadow);
 }
 
-/* Футер */
+nav a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transition: left 0.7s;
+}
+
+nav a:hover::before {
+    left: 100%;
+}
+
+/* Покращений футер */
 footer {
     text-align: center;
-    padding: 20px;
+    padding: 30px 20px;
     background-color: var(--neutral-gray);
     color: #fff;
-    margin-top: 20px;
-    border-top: 3px solid var(--main-color);
+    margin-top: 40px;
+    border-top: 4px solid var(--main-color);
+    position: relative;
+    overflow: hidden;
 }
 
-/* Аукціонні блоки */
+footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gold-gradient);
+    animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: 200px 0; }
+}
+
+footer a {
+    color: #fff;
+    margin: 0 10px;
+}
+
+footer a:hover {
+    color: var(--main-color);
+}
+
+/* Вдосконалені аукціонні блоки з анімаціями */
 .auction-card-fixed {
     min-height: 420px;
     max-height: 420px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    position: relative;
 }
 
 .auction-card-img {
@@ -202,30 +591,563 @@ footer {
     background-position: center;
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
 }
 
 .auction-details {
-    transition: max-height 0.3s ease, opacity 0.3s ease;
+    transition: max-height var(--transition-normal), opacity var(--transition-normal);
     overflow: hidden;
 }
 
 .auction-card .auction-toggle-btn {
     margin-top: auto;
+    transition: all var(--transition-normal);
 }
 
 .auction-card {
-    transition: box-shadow 0.3s, transform 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: #fff;
 }
 .auction-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transform: translateY(-8px) scale(1.03);
     z-index: 2;
 }
 .auction-card-img img {
-    transition: filter 0.3s, transform 0.3s;
+    transition: filter var(--transition-normal), transform var(--transition-slow);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .auction-card:hover .auction-card-img img {
-    filter: brightness(1.08) saturate(1.1);
-    transform: scale(1.04);
+    filter: brightness(1.1) saturate(1.1);
+    transform: scale(1.05);
+}
+
+/* Індикатор статусу аукціону */
+.auction-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+.status-active {
+    background-color: var(--accent-green);
+    animation: pulse 2s infinite;
+}
+
+.status-ending {
+    background-color: var(--accent-red);
+    animation: pulse-fast 1.2s infinite;
+}
+
+.status-pending {
+    background-color: var(--main-color);
+}
+
+.status-closed {
+    background-color: var(--neutral-gray);
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse-fast {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Розділювач */
+.divider {
+    height: 3px;
+    background: var(--gold-gradient);
+    width: 60px;
+    margin: 20px auto;
+    border-radius: 2px;
+    transition: width var(--transition-normal);
+}
+
+.divider:hover {
+    width: 100px;
+}
+
+/* Карточка корисної інформації */
+.info-card {
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: var(--card-shadow);
+    border-left: 5px solid var(--accent-blue);
+    transition: all var(--transition-normal);
+}
+
+.info-card:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(-4px);
+}
+
+.info-card h4 {
+    color: var(--accent-blue);
+    margin-bottom: 15px;
+}
+
+/* Значки та іконки */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    margin-right: 5px;
+    transition: all var(--transition-fast);
+}
+
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.badge-primary {
+    background: var(--blue-gradient);
+    color: #fff;
+}
+
+.badge-secondary {
+    background: linear-gradient(135deg, var(--neutral-gray), #5a6268);
+    color: #fff;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, var(--accent-green), #20a86a);
+    color: #fff;
+}
+
+.badge-warning {
+    background: var(--gold-gradient);
+    color: #fff;
+}
+
+/* Спиннер для завантаження */
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--main-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивний скрін для маленьких екранів */
+@media (max-width: 576px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .auction-card-fixed {
+        min-height: 380px;
+        max-height: 380px;
+    }
+    
+    .auction-card-img {
+        height: 160px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    footer {
+        padding: 20px 10px;
+    }
+    
+    .flash {
+        padding: 10px;
+    }
+}
+
+/* Адаптивні стилі для хедера */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .header-controls {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .header-social {
+        margin-bottom: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .language-switcher {
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    .language-switcher button {
+        width: 100%;
+        min-width: unset !important;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Додаткові анімації для інтерактивних елементів */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+/* Застосування анімацій до елементів при завантаженні сторінки */
+.animate-fade-in {
+    animation: fadeIn var(--transition-normal) both;
+}
+
+.animate-slide-right {
+    animation: slideInRight var(--transition-normal) both;
+}
+
+.animate-slide-left {
+    animation: slideInLeft var(--transition-normal) both;
+}
+
+.animate-bounce {
+    animation: bounce var(--transition-slow) both;
+}
+
+/* Social Media Buttons */
+.social-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    text-align: center;
+    transition: all var(--transition-normal);
+    color: white;
+    margin: 0 3px;
+    box-shadow: var(--button-shadow);
+    font-size: 18px;
+}
+
+.social-button:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.social-button:active {
+    transform: translateY(1px);
+}
+
+/* Social Media Button Colors */
+.telegram-color {
+    background-color: #0088cc;
+}
+
+.facebook-color {
+    background-color: #3b5998;
+}
+
+.instagram-color {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.tiktok-color {
+    background-color: #000000;
+}
+
+.email-color {
+    background-color: #d44638;
+}
+
+/* Адаптивні соціальні кнопки для мобільних */
+@media (max-width: 576px) {
+    .social-button {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        margin: 0 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .social-button {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+        margin: 0 1px;
+    }
+}
+
+/* Home button styling */
+.home-button {
+    position: relative;
+    padding: 8px 16px;
+    color: white !important;
+    background: var(--gold-gradient);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    box-shadow: var(--button-shadow);
+}
+
+.home-button:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(-2px);
+}
+
+.home-button:active {
+    transform: translateY(1px);
+}
+
+.home-button::after {
+    content: "🏠";
+    margin-left: 8px;
+    font-size: 16px;
+}
+
+/* Стилі для віджета гаманця */
+.wallet-widget {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 100%;
+    transition: all 0.2s ease;
+}
+
+.wallet-address-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+#wallet-address-short {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: bold;
+    color: #343a40;
+    transition: color 0.2s ease;
+}
+
+#wallet-address-short:hover {
+    color: var(--main-color);
+}
+
+.wallet-icon {
+    font-size: 1.2em;
+    color: #28a745;
+}
+
+@media (max-width: 576px) {
+    .wallet-widget {
+        padding: 0.15rem 0.35rem;
+        font-size: 0.9rem;
+    }
+    
+    #wallet-address-short {
+        max-width: 80px;
+    }
+    
+    .wallet-discount {
+        font-size: 0.85em !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallet-widget {
+        padding: 0.1rem 0.25rem;
+        font-size: 0.85rem;
+    }
+    
+    #wallet-address-short {
+        max-width: 70px;
+    }
+}
+
+/* Покращення стилів для кнопки підключення гаманця */
+.wallet-connect-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    transition: all var(--transition-fast);
+}
+
+@media (max-width: 576px) {
+    .wallet-connect-btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallet-connect-btn {
+        padding: 3px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Стилі для контейнера кнопок футера */
+.footer-buttons {
+    padding: 5px 0;
+}
+
+/* Глобальні класи для обрізання тексту */
+.text-truncate-container {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.text-truncate-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Адаптивні стилі для карток аукціонів */
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .card-text {
+        font-size: 0.85rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        max-height: 4.5em;
+    }
+    
+    .auction-card .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Адаптивність для віджета асистента */
+#assistant-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+}
+
+#assistant-open-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 2em;
+}
+
+#assistant-chat {
+    width: 340px;
+    max-width: 90vw;
+}
+
+@media (max-width: 576px) {
+    #assistant-widget {
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    #assistant-open-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 1.75em;
+    }
+    
+    #assistant-chat {
+        width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    #assistant-widget {
+        bottom: 12px;
+        right: 12px;
+    }
+    
+    #assistant-open-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1.5em;
+    }
+    
+    #assistant-chat {
+        width: 280px;
+    }
 }

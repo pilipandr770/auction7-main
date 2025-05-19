@@ -45,3 +45,18 @@
 2025-05-09 09:49:26,382 INFO [MESSAGES] count: 2
 2025-05-09 09:49:26,382 INFO [ASSISTANT] Вибачте, я не зовсім зрозумів ваше повідомлення. Могли б ви пояснити або поставити питання щодо платформи аукціонів?
 2025-05-09 09:49:29,075 INFO [AUDIO] assistans/static/audio/b82cd7fd-d9d1-4eef-afc6-08c266d4ea6e.mp3
+2025-05-19 20:46:25,993 INFO [USER] привіт
+2025-05-19 20:46:30,953 INFO [THREAD] created: thread_yzzbYwLv9WiPR2g2zFO9UL2e
+2025-05-19 20:46:34,876 INFO [THREAD] message sent: привіт
+2025-05-19 20:46:39,526 INFO [RUN] started: run_PLPE6r8PSeDrEl5wEw9skH2W
+2025-05-19 20:46:40,135 INFO [RUN] status: queued
+2025-05-19 20:46:42,759 INFO [RUN] status: queued
+2025-05-19 20:46:46,170 INFO [RUN] status: in_progress
+2025-05-19 20:46:47,509 INFO [RUN] status: in_progress
+2025-05-19 20:46:49,699 INFO [RUN] status: in_progress
+2025-05-19 20:46:51,202 INFO [RUN] status: in_progress
+2025-05-19 20:46:54,624 INFO [RUN] status: in_progress
+2025-05-19 20:46:55,965 INFO [RUN] status: completed
+2025-05-19 20:46:56,265 INFO [MESSAGES] count: 2
+2025-05-19 20:46:56,265 INFO [ASSISTANT] Вітаю! Чим можу допомогти щодо аукціонної платформи?
+2025-05-19 20:46:57,808 INFO [AUDIO] assistans/static/audio/a69f8691-583f-46f2-81fa-88917c4e6eb0.mp3
