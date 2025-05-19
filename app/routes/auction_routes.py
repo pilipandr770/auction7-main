@@ -7,6 +7,9 @@ from app.models.auction import Auction
 from app.models.user import User
 from app.models.auction_participant import AuctionParticipant
 from blockchain_payments.payment_token_discount import get_user_discount
+from app.utils.i18n_messages import get_message
+from app.utils.i18n_ui import ui_text
+from flask import session
 
 auction_bp = Blueprint('auction', __name__)
 
@@ -67,11 +70,13 @@ def create_auction():
         db.session.add(new_auction)
         db.session.commit()
 
-        flash("Аукціон успішно створено!", "success")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_action_success', lang), 'success')
     except Exception as e:
         db.session.rollback()
         print(f"Помилка створення аукціону: {e}")
-        flash("Не вдалося створити аукціон. Спробуйте пізніше.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_action_error', lang), 'error')
 
     return redirect(url_for('user.seller_dashboard', email=current_user.email))
 
@@ -126,7 +131,7 @@ def auction_detail(auction_id):
             print(f"Помилка участі в аукціоні: {e}")
             return jsonify({"error": "Не вдалося взяти участь в аукціоні"}), 500
 
-    return render_template('auctions/auction_detail.html', auction=auction)
+    return render_template('auctions/auction_detail.html', auction=auction, lang=session.get('lang', 'ua'), ui_text=ui_text)
 
 @auction_bp.route('/view/<int:auction_id>', methods=['POST'])
 @login_required
@@ -270,3 +275,13 @@ def close_auction(auction_id):
         print(f"Помилка закриття аукціону: {e}")
         flash("Не вдалося закрити аукціон. Спробуйте пізніше.", "error")
         return redirect(url_for('user.seller_dashboard', email=current_user.email))
+
+@auction_bp.route('/card')
+def auction_card():
+    lang = session.get('lang', 'ua')
+    # auction, user, img_url must be passed from the parent context
+    if lang == 'en':
+        return render_template('auctions/auction_card_en.html', lang=lang)
+    elif lang == 'de':
+        return render_template('auctions/auction_card_de.html', lang=lang)
+    return render_template('auctions/auction_card.html', lang=lang)

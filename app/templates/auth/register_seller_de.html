@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Als Verkäufer registrieren{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-secondary fw-bold mb-4">Als Verkäufer registrieren</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="username" class="form-label">Benutzername:</label>
+            {{ form.username(class_="form-control", id="username", placeholder="Benutzernamen eingeben") }}
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">E-Mail:</label>
+            {{ form.email(class_="form-control", id="email", placeholder="E-Mail eingeben") }}
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Passwort:</label>
+            {{ form.password(class_="form-control", id="password", placeholder="Passwort eingeben") }}
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Passwort bestätigen:</label>
+            {{ form.confirm_password(class_="form-control", id="confirm_password", placeholder="Passwort wiederholen") }}
+        </div>
+        <div class="mb-3">
+            <label for="company_name" class="form-label">Firmenname:</label>
+            {{ form.company_name(class_="form-control", id="company_name", placeholder="Firmenname eingeben") }}
+        </div>
+        <div class="mb-3">
+            <label for="tax_id" class="form-label">Steuernummer:</label>
+            {{ form.tax_id(class_="form-control", id="tax_id", placeholder="Steuernummer eingeben") }}
+        </div>
+        <div class="mb-3">
+            <label for="verification_document" class="form-label">Verifizierungsdokument:</label>
+            {{ form.verification_document(class_="form-control", id="verification_document") }}
+        </div>
+        <div class="text-center">
+            {{ form.submit(class_="btn btn-warning w-50", value="Registrieren") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

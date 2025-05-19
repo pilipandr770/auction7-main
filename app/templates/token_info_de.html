@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}AUKTO Token Info{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-secondary fw-bold text-center">AUKTO — Funktionaler Token</h1>
+    <p class="text-muted fs-5 text-center">
+        Der AUKTO-Token ist Ihr Schlüssel zu zusätzlichen Vorteilen auf der Plattform:
+    </p>
+    <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item bg-light text-muted">Rabatte für das Anzeigen des aktuellen Auktionspreises.</li>
+        <li class="list-group-item bg-light text-muted">Erhöhte Gewinnchancen dank aktueller Informationen.</li>
+        <li class="list-group-item bg-light text-muted">Servicegebühren mit Token bezahlen.</li>
+    </ul>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('token.buy') }}" class="btn btn-success">Token kaufen</a>
+        <a href="{{ url_for('token.airdrop') }}" class="btn btn-primary">Per Airdrop erhalten</a>
+    </div>
+</div>
+{% endblock %}

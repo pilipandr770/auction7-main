@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}AUKTO Token Airdrop{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-secondary fw-bold text-center">Tokens über Airdrop erhalten</h1>
+    <p class="text-muted fs-5 text-center">
+        Sie können kostenlose AUKTO-Tokens über Airdrop erhalten! Hinterlassen Sie einfach Ihre Polygon (MetaMask) Wallet-Adresse im Formular unten.
+    </p>
+    <form method="POST" action="{{ url_for('token.airdrop') }}" class="mx-auto" style="max-width:400px;">
+        <div class="mb-3">
+            <label for="wallet_address" class="form-label">Polygon Wallet-Adresse:</label>
+            <input type="text" class="form-control" id="wallet_address" name="wallet_address" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Tokens erhalten</button>
+    </form>
+    {% if airdrop_sent %}
+    <div class="alert alert-success mt-4 text-center">Tokens wurden an Ihre Wallet gesendet!</div>
+    {% elif error %}
+    <div class="alert alert-danger mt-4 text-center">{{ error }}</div>
+    {% endif %}
+</div>
+{% endblock %}

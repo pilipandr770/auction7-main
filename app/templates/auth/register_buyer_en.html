@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Register as Buyer{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-secondary fw-bold mb-4">Register as Buyer</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username:</label>
+            {{ form.username(class_="form-control", id="username", placeholder="Enter your username") }}
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            {{ form.email(class_="form-control", id="email", placeholder="Enter your email") }}
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            {{ form.password(class_="form-control", id="password", placeholder="Enter password") }}
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password:</label>
+            {{ form.confirm_password(class_="form-control", id="confirm_password", placeholder="Repeat password") }}
+        </div>
+        <div class="text-center">
+            {{ form.submit(class_="btn btn-primary w-50", value="Register") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

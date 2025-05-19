@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 from app.models.user import User
 from app.models.auction import Auction
 from app import db  # add db import
+from app.utils.i18n_messages import get_message
+from app.utils.i18n_ui import ui_text
+from flask import session
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -24,7 +27,9 @@ def admin_dashboard():
     return render_template('admin/dashboard.html', 
                            users=users, 
                            auctions=auctions, 
-                           admin_balance=admin_balance)
+                           admin_balance=admin_balance,
+                           lang=session.get('lang', 'ua'),
+                           ui_text=ui_text)
 
 
 @admin_bp.route('/verify_sellers', methods=['GET', 'POST'])
@@ -35,7 +40,7 @@ def verify_sellers():
 
     unverified_sellers = User.query.filter_by(user_type='seller', is_verified=False).all()
 
-    return render_template('admin/verify_sellers.html', sellers=unverified_sellers)
+    return render_template('admin/verify_sellers.html', sellers=unverified_sellers, lang=session.get('lang', 'ua'), ui_text=ui_text)
 
 
 
@@ -50,12 +55,13 @@ def verify_seller_action(user_id):
         flash("Продавця не знайдено", "error")
         return redirect(url_for('admin.verify_sellers'))
 
+    lang = session.get('lang', 'ua')  # Отримання мови з сесії, за замовчуванням 'ua'
     try:
         seller.is_verified = True
         db.session.commit()
-        flash(f"Продавець {seller.username} підтверджений", "success")
+        flash(get_message('admin_action_success', lang), 'success')
     except Exception as e:
         db.session.rollback()
         print(f"[ERROR] Seller verification failed: {e}")
-        flash(f"Помилка підтвердження продавця: {e}", "error")
+        flash(get_message('admin_action_error', lang), 'error')
     return redirect(url_for('admin.verify_sellers'))

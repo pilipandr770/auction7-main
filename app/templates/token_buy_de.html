@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}AUKTO Token kaufen{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-secondary fw-bold text-center">AUKTO Token kaufen</h1>
+    <p class="text-muted fs-5 text-center">
+        Sie können AUKTO-Tokens kaufen, um zusätzliche Vorteile auf der Plattform zu erhalten.
+        Folgen Sie der untenstehenden Anleitung oder verbinden Sie Ihre MetaMask-Wallet, um zu kaufen.
+    </p>
+    <div class="alert alert-info text-center">
+        <b>Token-Adresse:</b> <code>0xAf6087a1A730DAb2CA8d42dca7893c22fDBA683d</code>
+    </div>
+    <div class="d-flex justify-content-center">
+        <a href="https://app.uniswap.org/#/swap?outputCurrency=0xAf6087a1A730DAb2CA8d42dca7893c22fDBA683d" target="_blank" class="btn btn-success">Auf Uniswap kaufen</a>
+    </div>
+    <p class="text-center mt-4">Vergessen Sie nicht, nach dem Kauf Ihre Wallet in Ihrem Profil zu verbinden.</p>
+</div>
+{% endblock %}

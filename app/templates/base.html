@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="{{ lang if lang else 'uk' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Аукціонний Застосунок{% endblock %}</title>
+    <title>{% block title %}{{ ui_text('app_name', lang) }}{% endblock %}</title>
 
     <!-- Підключення Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,48 +25,75 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <div class="container-fluid">
-                    <a class="navbar-brand fw-bold" href="/">Аукціонний Застосунок</a>
+                    <a class="navbar-brand fw-bold" href="/">{{ ui_text('app_name', lang) }}</a>
                     <div class="d-flex align-items-center w-100 justify-content-between">
                         <!-- Центр: Соцмережі -->
                         <div class="d-flex gap-2 align-items-center">
-                            <a href="https://t.me/your_channel" class="text-white fs-5" title="Telegram" target="_blank">
+                            <a href="https://t.me/your_channel" class="text-white fs-5" title="{{ ui_text('telegram', lang) }}"
+                                target="_blank">
                                 <i class="bi bi-telegram" style="font-size:18px;"></i>
                             </a>
-                            <a href="https://facebook.com/your_page" class="text-white fs-5" title="Facebook" target="_blank">
+                            <a href="https://facebook.com/your_page" class="text-white fs-5" title="{{ ui_text('facebook', lang) }}"
+                                target="_blank">
                                 <i class="bi bi-facebook" style="font-size:18px;"></i>
                             </a>
-                            <a href="https://instagram.com/your_page" class="text-white fs-5" title="Instagram" target="_blank">
+                            <a href="https://instagram.com/your_page" class="text-white fs-5" title="{{ ui_text('instagram', lang) }}"
+                                target="_blank">
                                 <i class="bi bi-instagram" style="font-size:18px;"></i>
                             </a>
-                            <a href="https://tiktok.com/@your_page" class="text-white fs-5" title="TikTok" target="_blank">
+                            <a href="https://tiktok.com/@your_page" class="text-white fs-5" title="{{ ui_text('tiktok', lang) }}"
+                                target="_blank">
                                 <i class="bi bi-tiktok" style="font-size:18px;"></i>
                             </a>
-                            <a href="mailto:info@yourdomain.com" class="text-white fs-5 ms-1" title="Пошта">
+                            <a href="mailto:info@yourdomain.com" class="text-white fs-5 ms-1" title="{{ ui_text('email', lang) }}">
                                 <i class="bi bi-envelope" style="font-size:18px;"></i>
                             </a>
                         </div>
                         <!-- Справа: Віджет гаманця -->
                         <div class="d-flex align-items-center ms-3">
                             {% if current_user.is_authenticated %}
-                                {% if current_user.wallet_address %}
-                                    <div class="wallet-widget d-flex align-items-center bg-white px-2 py-1 rounded shadow-sm" style="gap: 8px; flex-direction: column; align-items: flex-start;">
-                                        <div class="d-flex align-items-center" style="gap: 8px;">
-                                            <span style="font-size: 1.2em; color: #28a745;">&#128179;</span>
-                                            <span id="wallet-address-short" class="fw-bold text-dark" style="cursor:pointer;" title="Скопіювати адресу">
-                                                {{ current_user.wallet_address[:6] }}...{{ current_user.wallet_address[-4:] }}
-                                            </span>
-                                            <span id="wallet-copy-status" class="text-success small ms-1" style="display:none;">Скопійовано!</span>
-                                        </div>
-                                        {% if user_discount is not none %}
-                                            <div class="small text-success fw-bold mt-1" style="font-size: 0.95em;">
-                                                Знижка за токен: <span style="color:#d5a021;">-{{ user_discount }}%</span>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% else %}
-                                    <button onclick="connectWallet()" class="btn btn-outline-warning btn-sm ms-2">Підключити гаманець &#128179;</button>
+                            {% if current_user.wallet_address %}
+                            <div class="wallet-widget d-flex align-items-center bg-white px-2 py-1 rounded shadow-sm"
+                                style="gap: 8px; flex-direction: column; align-items: flex-start;">
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <span style="font-size: 1.2em; color: #28a745;">&#128179;</span>
+                                    <span id="wallet-address-short" class="fw-bold text-dark" style="cursor:pointer;"
+                                        title="{{ ui_text('copy_address', lang) }}">
+                                        {{ current_user.wallet_address[:6] }}...{{ current_user.wallet_address[-4:] }}
+                                    </span>
+                                    <span id="wallet-copy-status" class="text-success small ms-1"
+                                        style="display:none;">{{ ui_text('copied', lang) }}</span>
+                                </div>
+                                {% if user_discount is not none %}
+                                <div class="small text-success fw-bold mt-1" style="font-size: 0.95em;">
+                                    {{ ui_text('token_discount', lang) }}: <span style="color:#d5a021;">-{{ user_discount
+                                        }}%</span>
+                                </div>
                                 {% endif %}
+                            </div>
+                            {% else %}
+                            <button onclick="connectWallet()" class="btn btn-outline-warning btn-sm ms-2">{{
+                                ui_text('connect_wallet', lang) }} &#128179;</button>
                             {% endif %}
+                            {% endif %}
+                            <!-- Language Switcher -->
+                            <div class="ms-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-light btn-sm py-1 px-2 dropdown-toggle" type="button"
+                                        id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                        style="font-size:0.95em;min-width:90px;">
+                                        🌐 {{ ui_text('language', lang) }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                                        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang='ua') }}">Українська</a>
+                                        </li>
+                                        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang='en') }}">English</a>
+                                        </li>
+                                        <li><a class="dropdown-item" href="{{ url_for('main.set_language', lang='de') }}">Deutsch</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -80,33 +107,36 @@
 
     <footer class="bg-dark text-white py-3 mt-auto">
         <div class="container text-center">
-            <p class="mb-1">&copy; 2024 Аукціонний Застосунок. Всі права захищені.</p>
+            <p class="mb-1">&copy; 2024 {{ ui_text('app_name', lang) }}. {{ ui_text('rights_reserved', lang) }}</p>
             <div class="mb-0 d-flex justify-content-center gap-2">
-                <a href="{{ url_for('main.privacy') }}" class="btn btn-outline-warning btn-sm">Політика конфіденційності</a>
-                <a href="{{ url_for('main.impressum') }}" class="btn btn-outline-warning btn-sm">Імпресум</a>
-                <a href="{{ url_for('main.contacts') }}" class="btn btn-outline-warning btn-sm">Контакти</a>
+                <a href="{{ url_for('main.privacy') }}" class="btn btn-outline-warning btn-sm">{{ ui_text('privacy_policy', lang) }}</a>
+                <a href="{{ url_for('main.impressum') }}" class="btn btn-outline-warning btn-sm">{{ ui_text('impressum', lang) }}</a>
+                <a href="{{ url_for('main.contacts') }}" class="btn btn-outline-warning btn-sm">{{ ui_text('contacts', lang) }}</a>
             </div>
         </div>
     </footer>
 
     <!-- Віджет асистента OpenAI (чат у правому нижньому куті) -->
     <div id="assistant-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;">
-        <button id="assistant-open-btn" class="btn btn-primary rounded-circle shadow" style="width:56px;height:56px;font-size:2em;">
-            <span aria-label="Чат-бот" title="Чат-бот">💬</span>
+        <button id="assistant-open-btn" class="btn btn-primary rounded-circle shadow"
+            style="width:56px;height:56px;font-size:2em;">
+            <span aria-label="{{ ui_text('chatbot', lang) }}" title="{{ ui_text('chatbot', lang) }}">💬</span>
         </button>
         <div id="assistant-chat" class="card shadow" style="display:none;width:340px;max-width:90vw;">
             <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
-                <span>AI Асистент</span>
+                <span>{{ ui_text('assistant', lang) }}</span>
                 <button type="button" class="btn-close btn-close-white" id="assistant-close-btn"></button>
             </div>
             <div class="card-body p-2" style="height:260px;overflow-y:auto;" id="assistant-messages">
-                <div class="text-muted small">Вітаю! Я допоможу вам з питаннями щодо аукціону.</div>
+                <div class="text-muted small">{{ ui_text('assistant_greeting', lang) }}</div>
             </div>
             <div class="card-footer p-2">
                 <form id="assistant-form" class="d-flex gap-2">
-                    <input type="text" class="form-control" id="assistant-input" placeholder="Ваше питання..." autocomplete="off">
+                    <input type="text" class="form-control" id="assistant-input"
+                        placeholder="{{ ui_text('assistant_placeholder', lang) }}" autocomplete="off">
                     <button class="btn btn-primary" type="submit">&rarr;</button>
-                    <button type="button" id="assistant-voice-btn" class="btn btn-outline-secondary" title="Голосовий ввід"><span id="assistant-voice-ico">🎤</span></button>
+                    <button type="button" id="assistant-voice-btn" class="btn btn-outline-secondary"
+                        title="{{ ui_text('assistant_voice', lang) }}"><span id="assistant-voice-ico">🎤</span></button>
                 </form>
             </div>
         </div>
@@ -155,7 +185,7 @@
     let recognition;
     if ('webkitSpeechRecognition' in window) {
         recognition = new webkitSpeechRecognition();
-        recognition.lang = 'uk-UA';
+        recognition.lang = (lang === 'en' ? 'en-US' : (lang === 'de' ? 'de-DE' : 'uk-UA'));
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         recognition.onstart = () => { recognizing = true; voiceIco.textContent = '🔴'; };
@@ -176,7 +206,7 @@
         };
     } else {
         voiceBtn.disabled = true;
-        voiceBtn.title = 'Голосовий ввід не підтримується у вашому браузері';
+        voiceBtn.title = '{{ ui_text('voice_not_supported', lang) }}';
     }
     </script>
     <!-- Кінець віджета асистента -->

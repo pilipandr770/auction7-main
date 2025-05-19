@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Внутрішня помилка сервера (500){% endblock %}
+{% block title %}{{ ui_text('500_title', lang) }}{% endblock %}
 {% block content %}
 <div class="container my-5 text-center">
     <h1 class="display-3 text-danger">500</h1>
-    <h2 class="mb-4">Внутрішня помилка сервера</h2>
-    <p class="lead">Сталася неочікувана помилка. Ми вже працюємо над її усуненням.</p>
-    <a href="/" class="btn btn-outline-warning mt-3">На головну</a>
+    <h2 class="mb-4">{{ ui_text('500_header', lang) }}</h2>
+    <p class="lead">{{ ui_text('500_text', lang) }}</p>
+    <a href="/" class="btn btn-outline-warning mt-3">{{ ui_text('to_home', lang) }}</a>
 </div>
 {% endblock %}

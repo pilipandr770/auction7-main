@@ -1,10 +1,12 @@
-from flask import Blueprint, request, jsonify, redirect, url_for, flash, render_template
+from flask import Blueprint, request, jsonify, redirect, url_for, flash, render_template, session
 from flask_login import login_required, current_user
 from app import db
 from app.models.user import User
 from app.models.auction import Auction
 from app.models.auction_participant import AuctionParticipant
 from blockchain_payments.payment_matic import process_payment, send_to_escrow, send_to_admin, release_from_escrow
+from app.utils.i18n_messages import get_message
+from app.utils.i18n_ui import ui_text
 
 user_bp = Blueprint('user', __name__)
 
@@ -33,12 +35,14 @@ def add_balance():
 @login_required
 def buyer_dashboard(email):
     if current_user.email != email:
-        flash("Неавторизований доступ", 'error')
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_authorized', lang), 'error')
         return redirect(url_for('auth.login'))
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        flash("Користувача не знайдено", 'error')
+        lang = session.get('lang', 'ua')
+        flash(get_message('user_not_found', lang), 'error')
         return redirect(url_for('auth.login'))
 
     # Активні аукціони
@@ -51,7 +55,8 @@ def buyer_dashboard(email):
         auction = Auction.query.get(auction_id)
 
         if not auction:
-            flash("Аукціон не знайдено.", "error")
+            lang = session.get('lang', 'ua')
+            flash(get_message('auction_not_found', lang), 'error')
             return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
         try:
@@ -59,11 +64,13 @@ def buyer_dashboard(email):
             participant = AuctionParticipant.query.filter_by(auction_id=auction.id, user_id=current_user.id).first()
 
             if participant and participant.has_viewed_price:
-                flash("Ви вже переглядали поточну ціну цього аукціону.", "info")
+                lang = session.get('lang', 'ua')
+                flash(get_message('already_viewed_price', lang), 'info')
                 return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
             if current_user.balance < view_price:
-                flash("Недостатньо коштів на балансі для перегляду ціни.", "error")
+                lang = session.get('lang', 'ua')
+                flash(get_message('not_enough_balance', lang), 'error')
                 return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
             current_user.deduct_balance(view_price)
@@ -76,24 +83,33 @@ def buyer_dashboard(email):
             participant.mark_viewed_price()
             db.session.commit()
 
-            flash(f"Перегляд ціни успішний! Поточна ціна: {auction.current_price} грн", "success")
+            lang = session.get('lang', 'ua')
+            flash(get_message('view_success', lang).format(price=auction.current_price), 'success')
         except Exception as e:
             db.session.rollback()
             print(f"Помилка перегляду ціни: {e}")
-            flash("Не вдалося виконати перегляд. Спробуйте пізніше.", "error")
+            lang = session.get('lang', 'ua')
+            flash(get_message('view_failed', lang), 'error')
 
-    return render_template('users/buyer_dashboard.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations)
+    lang = session.get('lang', 'ua')
+    if lang == 'en':
+        return render_template('users/buyer_dashboard_en.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('users/buyer_dashboard_de.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
+    return render_template('users/buyer_dashboard.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
 
 @user_bp.route('/seller/<string:email>', methods=['GET'])
 @login_required
 def seller_dashboard(email):
     if current_user.email != email:
-        flash("Неавторизований доступ", 'error')
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_authorized', lang), 'error')
         return redirect(url_for('auth.login'))
 
     user = User.query.filter_by(email=email).first()
     if not user:
-        flash("Користувача не знайдено", 'error')
+        lang = session.get('lang', 'ua')
+        flash(get_message('user_not_found', lang), 'error')
         return redirect(url_for('auth.login'))
 
     all_auctions = Auction.query.filter_by(seller_id=user.id).all()
@@ -118,7 +134,9 @@ def seller_dashboard(email):
         'users/seller_dashboard.html',
         user=user,
         auctions=completed_auctions,
-        balance_from_completed=balance_from_completed
+        balance_from_completed=balance_from_completed,
+        lang=session.get('lang', 'ua'),
+        ui_text=ui_text
     )
 
 @user_bp.route('/participate/<int:auction_id>', methods=['POST'])
@@ -161,20 +179,24 @@ def participate_in_auction(auction_id):
 def close_auction(auction_id):
     auction = Auction.query.get(auction_id)
     if not auction:
-        flash("Аукціон не знайдено.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_not_found', lang), 'error')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
     if not auction.is_active:
-        flash("Аукціон вже закритий.", "info")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_closed', lang), 'info')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
     participant = AuctionParticipant.query.filter_by(auction_id=auction.id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
-        flash("Ви не можете закрити цей аукціон, оскільки не брали участь у ньому.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_participant', lang), 'error')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
     if current_user.balance < auction.current_price:
-        flash("Недостатньо коштів для закриття аукціону.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_enough_close', lang), 'error')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
     try:
@@ -190,13 +212,15 @@ def close_auction(auction_id):
                 "participants": auction.total_participants,
                 "final_price": auction.current_price
             }), 200
-        flash("Аукціон успішно закрито! Вітаємо з перемогою.", "success")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_closed_success', lang), 'success')
     except Exception as e:
         db.session.rollback()
         print(f"[ERROR] Помилка закриття аукціону: {e}")
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({"error": f"Не вдалося закрити аукціон. {e}"}), 500
-        flash(f"Не вдалося закрити аукціон. {e}", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('auction_close_failed', lang).format(error=e), 'error')
     return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
 @user_bp.route('/confirm_receive/<int:auction_id>', methods=['POST'])
@@ -204,21 +228,25 @@ def close_auction(auction_id):
 def confirm_receive(auction_id):
     auction = Auction.query.get(auction_id)
     if not auction or not auction.winner_id or auction.winner_id != current_user.id:
-        flash("Ви не є переможцем цього аукціону або аукціон не знайдено.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_winner', lang), 'error')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
     if auction.is_confirmed:
-        flash("Ви вже підтвердили отримання товару.", "info")
+        lang = session.get('lang', 'ua')
+        flash(get_message('already_confirmed', lang), 'info')
         return redirect(url_for('user.buyer_dashboard', email=current_user.email))
     try:
         # Викликати release_from_escrow (реалізуйте у payment_matic.py)
         # release_from_escrow(auction.id)  # Розкоментуйте, якщо функція готова
         auction.is_confirmed = True
         db.session.commit()
-        flash("Отримання товару підтверджено. Кошти переведено продавцю!", "success")
+        lang = session.get('lang', 'ua')
+        flash(get_message('confirm_success', lang), 'success')
     except Exception as e:
         db.session.rollback()
         print(f"Помилка підтвердження отримання: {e}")
-        flash("Не вдалося підтвердити отримання. Спробуйте пізніше.", "error")
+        lang = session.get('lang', 'ua')
+        flash(get_message('confirm_failed', lang), 'error')
     return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
 @user_bp.route('/connect_wallet', methods=['POST'])

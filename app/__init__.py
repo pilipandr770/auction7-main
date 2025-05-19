@@ -9,17 +9,22 @@ migrate = Migrate()
 login_manager = LoginManager()
 
 def register_error_handlers(app):
+    from app.utils.i18n_ui import ui_text
+    from flask import session
     @app.errorhandler(404)
     def not_found_error(error):
-        return render_template('errors/404.html'), 404
+        lang = session.get('lang', 'ua')
+        return render_template('errors/404.html', lang=lang, ui_text=ui_text), 404
 
     @app.errorhandler(500)
     def internal_error(error):
-        return render_template('errors/500.html'), 500
+        lang = session.get('lang', 'ua')
+        return render_template('errors/500.html', lang=lang, ui_text=ui_text), 500
 
     @app.errorhandler(Exception)
     def handle_exception(e):
-        return render_template('errors/generic.html', error=e), 500
+        lang = session.get('lang', 'ua')
+        return render_template('errors/generic.html', error=e, lang=lang, ui_text=ui_text), 500
 
 def create_app():
     app = Flask(__name__)
@@ -66,6 +71,10 @@ def create_app():
     app.register_blueprint(assistant_bp)
     app.register_blueprint(verification_bp)
     app.register_blueprint(verification_admin_bp)
+
+    # Додаємо blueprint для токен-сторінок
+    from app.routes.token_routes import token_bp
+    app.register_blueprint(token_bp)
 
     # Реєстрація обробників помилок
     register_error_handlers(app)

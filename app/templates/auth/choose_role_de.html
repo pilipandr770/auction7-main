@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Rolle wählen - Auktionsanwendung{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2 class="text-secondary fw-bold">Wählen Sie Ihren Kontotyp</h2>
+        <p class="text-muted fs-5">Um die Plattform zu nutzen, wählen Sie Ihre Rolle. Sie können sich als Käufer oder Verkäufer registrieren.</p>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-primary">Käufer</h3>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light text-muted">Nehmen Sie an Auktionen teil und gewinnen Sie Waren zu einem günstigen Preis.</li>
+                        <li class="list-group-item bg-light text-muted">Sofortige Registrierung und einfache Benutzeroberfläche.</li>
+                        <li class="list-group-item bg-light text-muted">Sichere Zahlung über Treuhandservice.</li>
+                        <li class="list-group-item bg-light text-muted">KI-Assistent für schnelle Antworten.</li>
+                    </ul>
+                    <a href="{{ url_for('auth.register_buyer') }}" class="btn btn-outline-primary w-75">Als Käufer registrieren</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body text-center">
+                    <h3 class="card-title text-warning">Verkäufer</h3>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item bg-light text-muted">Erstellen Sie eigene Auktionen und verkaufen Sie Waren in ganz Europa.</li>
+                        <li class="list-group-item bg-light text-muted">Zugang zu einer großen Zielgruppe und transparentes Auszahlungssystem.</li>
+                        <li class="list-group-item bg-light text-muted">Verifizierung zur Steigerung des Käufervertrauens.</li>
+                        <li class="list-group-item bg-light text-muted">Schutz der Transaktionen durch Treuhand und KI-Assistent.</li>
+                    </ul>
+                    <a href="{{ url_for('auth.register_seller') }}" class="btn btn-outline-warning w-75">Als Verkäufer registrieren</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-10">
+            <div class="alert alert-info text-center">
+                <b>Käufer</b> — erhält Zugang zu Auktionen, kann Waren mit Rabatt gewinnen und zahlt erst nach Erhalt.<br>
+                <b>Verkäufer</b> — kann Waren verkaufen, erhält Zahlungen nach Bestätigung durch den Käufer und hat Zugang zu einer breiten Zielgruppe.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

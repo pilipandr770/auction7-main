@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     is_verified = db.Column(Boolean, default=False)
     company_name = db.Column(db.String(255))
     tax_id = db.Column(db.String(64))
-    
+    language = db.Column(db.String(5), default='ua')  # 'ua', 'en', 'de'
 
     # Зв'язки
     auctions_created = db.relationship('Auction', foreign_keys='Auction.seller_id', backref='seller', lazy=True)

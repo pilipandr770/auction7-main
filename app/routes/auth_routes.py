@@ -2,6 +2,9 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user
 from app.models.user import User
 from app import db
+from app.utils.i18n_messages import get_message
+from flask import session
+from app.utils.i18n_ui import ui_text
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,13 +17,15 @@ def login():
         # Перевірка користувача
         user = User.query.filter_by(email=email).first()
 
+        lang = session.get('lang', 'ua')
+
         if not user or not user.check_password(password):
-            flash("Неправильний email або пароль", 'error')
+            flash(get_message('login_error', lang), 'error')
             return redirect(url_for('auth.login'))
 
         # Авторизація користувача
         login_user(user)
-        flash("Успішний вхід", 'success')
+        flash(get_message('login_success', lang), 'success')
 
         # Перевірка типу користувача (user_type)
         if user.user_type == "admin":
@@ -30,10 +35,10 @@ def login():
         elif user.user_type == "buyer":
             return redirect(url_for('user.buyer_dashboard', email=user.email))
         else:
-            flash("Роль користувача невизначена", 'error')
+            flash(get_message('user_role_undefined', lang), 'error')
             return redirect(url_for('auth.login'))
 
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', lang=session.get('lang', 'ua'), ui_text=ui_text)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -44,19 +49,21 @@ def register():
         password = request.form.get('password')
         user_type = request.form.get('user_type')  # "seller", "buyer" або "admin"
 
+        lang = session.get('lang', 'ua')
+
         if not email or not username or not password or not user_type:
-            flash("Усі поля обов'язкові", 'error')
+            flash(get_message('all_fields_required', lang), 'error')
             return redirect(url_for('auth.register'))
 
         # Перевірка, чи email вже існує
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            flash("Користувач із таким email вже існує", 'error')
+            flash(get_message('user_exists', lang), 'error')
             return redirect(url_for('auth.register'))
 
         # Перевірка типу користувача
         if user_type not in ['buyer', 'seller', 'admin']:
-            flash("Невірний тип користувача", 'error')
+            flash(get_message('user_type_invalid', lang), 'error')
             return redirect(url_for('auth.register'))
 
         # Створення нового користувача
@@ -66,19 +73,21 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash("Реєстрація успішна", 'success')
+        flash(get_message('register_success', lang), 'success')
         return redirect(url_for('auth.login'))
 
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', lang=session.get('lang', 'ua'), ui_text=ui_text)
 
 
 @auth_bp.route('/logout', methods=['GET'])
 def logout():
     if current_user.is_authenticated:
         logout_user()
-        flash("Ви успішно вийшли з системи", 'success')
+        lang = session.get('lang', 'ua')
+        flash(get_message('logout_success', lang), 'success')
     else:
-        flash("Ви ще не авторизовані", 'error')
+        lang = session.get('lang', 'ua')
+        flash(get_message('not_authorized', lang), 'error')
     return redirect(url_for('auth.login'))
 
 from werkzeug.utils import secure_filename
@@ -88,11 +97,17 @@ import os
 
 @auth_bp.route('/choose-role')
 def choose_role():
-    return render_template('auth/choose_role.html')
+    lang = session.get('lang', 'ua')
+    if lang == 'en':
+        return render_template('auth/choose_role_en.html', lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auth/choose_role_de.html', lang=lang, ui_text=ui_text)
+    return render_template('auth/choose_role.html', lang=lang, ui_text=ui_text)
 
 @auth_bp.route('/register/buyer', methods=['GET', 'POST'])
 def register_buyer():
     form = BuyerRegisterForm()
+    lang = session.get('lang', 'ua')
     if form.validate_on_submit():
         user = User(
             username=form.username.data,
@@ -102,24 +117,32 @@ def register_buyer():
         )
         db.session.add(user)
         db.session.commit()
-        flash("Реєстрація покупця успішна", 'success')
+        flash(get_message('register_buyer_success', lang), 'success')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register_buyer.html', form=form)
+    if lang == 'en':
+        return render_template('auth/register_buyer_en.html', form=form, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auth/register_buyer_de.html', form=form, lang=lang, ui_text=ui_text)
+    return render_template('auth/register_buyer.html', form=form, lang=lang, ui_text=ui_text)
 
 @auth_bp.route('/register/seller', methods=['GET', 'POST'])
 def register_seller():
     form = SellerRegisterForm()
+    lang = session.get('lang', 'ua')
     if form.validate_on_submit():
         file = form.verification_document.data
         if not file:
-            flash("Документ для верифікації обов'язковий!", 'error')
-            return render_template('auth/register_seller.html', form=form)
+            flash(get_message('verification_doc_required', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)
         filename = secure_filename(file.filename)
         upload_folder = os.path.join('app', 'static', 'uploads', 'verify')
         os.makedirs(upload_folder, exist_ok=True)
         filepath = os.path.join(upload_folder, filename)
         file.save(filepath)
-
         user = User(
             username=form.username.data,
             email=form.email.data,
@@ -130,6 +153,10 @@ def register_seller():
         user.is_verified = False
         db.session.add(user)
         db.session.commit()
-        flash("Реєстрація продавця успішна. Очікуйте верифікацію.", 'success')
+        flash(get_message('register_seller_success', lang), 'success')
         return redirect(url_for('auth.login'))
-    return render_template('auth/register_seller.html', form=form)
+    if lang == 'en':
+        return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
+    return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)

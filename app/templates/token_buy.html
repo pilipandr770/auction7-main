@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Купити токен AUKTO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-secondary fw-bold text-center">Купити токен AUKTO</h1>
+    <p class="text-muted fs-5 text-center">
+        Ви можете купити токени AUKTO для отримання додаткових переваг на платформі. 
+        Для покупки скористайтесь інструкцією нижче або підключіть свій гаманець MetaMask.
+    </p>
+    <div class="alert alert-info text-center">
+        <b>Адреса токена:</b> <code>0xAf6087a1A730DAb2CA8d42dca7893c22fDBA683d</code>
+    </div>
+    <div class="d-flex justify-content-center">
+        <a href="https://app.uniswap.org/#/swap?outputCurrency=0xAf6087a1A730DAb2CA8d42dca7893c22fDBA683d" target="_blank" class="btn btn-success">Купити на Uniswap</a>
+    </div>
+    <p class="text-center mt-4">Після покупки не забудьте підключити гаманець у вашому профілі.</p>
+</div>
+{% endblock %}

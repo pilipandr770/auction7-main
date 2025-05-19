@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Сталася помилка{% endblock %}
+{% block title %}{{ ui_text('generic_error_title', lang) }}{% endblock %}
 {% block content %}
 <div class="container my-5 text-center">
-    <h1 class="display-4 text-danger">Сталася помилка</h1>
+    <h1 class="display-4 text-danger">{{ ui_text('generic_error_header', lang) }}</h1>
     <p class="lead">{{ error }}</p>
-    <a href="/" class="btn btn-outline-warning mt-3">На головну</a>
+    <a href="/" class="btn btn-outline-warning mt-3">{{ ui_text('to_home', lang) }}</a>
 </div>
 {% endblock %}

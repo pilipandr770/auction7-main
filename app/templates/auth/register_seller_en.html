@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Register as Seller{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-secondary fw-bold mb-4">Register as Seller</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username:</label>
+            {{ form.username(class_="form-control", id="username", placeholder="Enter your username") }}
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            {{ form.email(class_="form-control", id="email", placeholder="Enter your email") }}
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            {{ form.password(class_="form-control", id="password", placeholder="Enter password") }}
+        </div>
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password:</label>
+            {{ form.confirm_password(class_="form-control", id="confirm_password", placeholder="Repeat password") }}
+        </div>
+        <div class="mb-3">
+            <label for="company_name" class="form-label">Company Name:</label>
+            {{ form.company_name(class_="form-control", id="company_name", placeholder="Enter company name") }}
+        </div>
+        <div class="mb-3">
+            <label for="tax_id" class="form-label">Tax ID:</label>
+            {{ form.tax_id(class_="form-control", id="tax_id", placeholder="Enter tax ID") }}
+        </div>
+        <div class="mb-3">
+            <label for="verification_document" class="form-label">Verification Document:</label>
+            {{ form.verification_document(class_="form-control", id="verification_document") }}
+        </div>
+        <div class="text-center">
+            {{ form.submit(class_="btn btn-warning w-50", value="Register") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
