@@ -151,3 +151,36 @@ class Auction(db.Model):
         if self.photos and 0 <= (self.main_photo_idx or 0) < len(self.photos):
             return self.photos[self.main_photo_idx or 0]
         return self.photos[0] if self.photos else None
+        
+    def get_safe_photo(self, index=None):
+        """
+        Returns a safe photo path that exists in the file system.
+        If the specified photo doesn't exist, returns a fallback image.
+        
+        :param index: Index of the photo to retrieve. If None, uses the main photo.
+        :return: A valid photo path
+        """
+        import os
+        from flask import current_app
+        
+        # Default fallback image
+        fallback_image = 'images/default/no-image.png'
+        
+        # Get the photo path based on index or main photo
+        if index is not None and self.photos and 0 <= index < len(self.photos):
+            photo_path = self.photos[index]
+        elif self.photos and 0 <= (self.main_photo_idx or 0) < len(self.photos):
+            photo_path = self.photos[self.main_photo_idx or 0]
+        elif self.photos and len(self.photos) > 0:
+            photo_path = self.photos[0]
+        else:
+            return fallback_image
+            
+        # Check if file exists
+        full_path = os.path.join(current_app.static_folder, photo_path)
+        if os.path.isfile(full_path):
+            return photo_path
+        else:
+            # Log the missing file
+            print(f"Warning: Image file not found: {photo_path}")
+            return fallback_image

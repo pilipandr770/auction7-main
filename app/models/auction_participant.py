@@ -15,18 +15,20 @@ class AuctionParticipant(db.Model):
     # Встановлення зв'язків
     auction = db.relationship('Auction', back_populates='participants')
     user = db.relationship('User', back_populates='auction_participations')
-
+    
     def __init__(self, auction_id, user_id):
         self.auction_id = auction_id
         self.user_id = user_id
-
+        
     def mark_paid_entry(self):
         """
         Позначає, що користувач сплатив вхідну плату.
         """
         self.has_paid_entry = True
-
+        
     def mark_viewed_price(self):
+        """
+        Позначає, що користувач переглянув ціну аукціону.
+        """
         self.has_viewed_price = True
-        db.session.commit()  # Збереження змін
 

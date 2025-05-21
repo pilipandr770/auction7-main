@@ -140,6 +140,7 @@ def register_buyer():
         db.session.commit()
         flash(get_message('register_buyer_success', lang), 'success')
         return redirect(url_for('auth.login'))
+    
     if lang == 'en':
         return render_template('auth/register_buyer_en.html', form=form, lang=lang, ui_text=ui_text)
     elif lang == 'de':
@@ -179,24 +180,39 @@ def register_seller():
             elif lang == 'de':
                 return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
             return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)
-        filename = secure_filename(file.filename)
-        upload_folder = os.path.join('app', 'static', 'uploads', 'verify')
-        os.makedirs(upload_folder, exist_ok=True)
-        filepath = os.path.join(upload_folder, filename)
-        file.save(filepath)
-        user = User(
-            username=form.username.data,
-            email=form.email.data,
-            password=form.password.data,
-            user_type='seller',
-            language=lang
-        )
-        user.verification_document = filepath
-        user.is_verified = False
-        db.session.add(user)
-        db.session.commit()
-        flash(get_message('register_seller_success', lang), 'success')
-        return redirect(url_for('auth.login'))
+            
+        try:
+            filename = secure_filename(file.filename)
+            upload_folder = os.path.join('app', 'static', 'uploads', 'verify')
+            os.makedirs(upload_folder, exist_ok=True)
+            filepath = os.path.join(upload_folder, filename)
+            file.save(filepath)
+            
+            user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password=form.password.data,
+                user_type='seller',
+                language=lang,
+                verification_document=filepath,
+                is_verified=False
+            )
+            
+            db.session.add(user)
+            db.session.commit()
+            
+            flash(get_message('register_seller_success', lang), 'success')
+            return redirect(url_for('auth.login'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error in seller registration: {e}")
+            flash(get_message('register_error', lang), 'error')
+            if lang == 'en':
+                return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
+            elif lang == 'de':
+                return render_template('auth/register_seller_de.html', form=form, lang=lang, ui_text=ui_text)
+            return render_template('auth/register_seller.html', form=form, lang=lang, ui_text=ui_text)
+            
     if lang == 'en':
         return render_template('auth/register_seller_en.html', form=form, lang=lang, ui_text=ui_text)
     elif lang == 'de':

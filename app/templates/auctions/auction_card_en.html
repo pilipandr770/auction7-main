@@ -27,7 +27,7 @@
     <div class="card-body d-flex flex-column justify-content-between">
         <h5 class="card-title text-warning fw-bold">{{ auction.title }}</h5>
         <p class="text-dark mb-2">Starting price: {{ auction.starting_price }} UAH</p>
-        <button class="btn btn-outline-secondary w-100 auction-toggle-btn" type="button" data-auction-id="{{ auction.id }}">Details</button>
+        <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-outline-secondary w-100" target="_blank">Details page</a>
     </div>
 </div>
 

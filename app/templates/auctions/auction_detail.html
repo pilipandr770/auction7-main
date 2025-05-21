@@ -30,9 +30,7 @@
             <p class="card-text"><strong>Опис:</strong> {{ auction.description }}</p>
             <p class="card-text"><strong>Початкова ціна:</strong> {{ auction.starting_price }} грн</p>
             <p class="card-text"><strong>Продавець:</strong> {{ auction.seller.username }} ({{ auction.seller.email }})
-            </p>
-
-            <!-- Відображення фотографій -->
+            </p>            <!-- Відображення фотографій -->
             {% if auction.photos and auction.photos|length > 1 %}
             <div class="mt-4">
                 <h5 class="text-secondary">Фотографії товару:</h5>
@@ -40,7 +38,7 @@
                   <div class="carousel-inner">
                     {% for photo in auction.photos %}
                     <div class="carousel-item {% if loop.index0 == (auction.main_photo_idx or 0) %}active{% endif %}">
-                      <img src="{{ url_for('static', filename=photo) }}" class="d-block w-100 rounded" alt="Фото товару" style="max-height:350px;object-fit:contain;">
+                      <img src="{{ url_for('static', filename=auction.get_safe_photo(loop.index0)) }}" class="d-block w-100 rounded" alt="Фото товару" style="max-height:350px;object-fit:contain;">
                     </div>
                     {% endfor %}
                   </div>
@@ -57,7 +55,7 @@
             {% elif auction.photos %}
             <div class="mt-4">
                 <h5 class="text-secondary">Фотографії товару:</h5>
-                <img src="{{ url_for('static', filename=auction.photos[0]) }}" class="img-fluid rounded" alt="Фото товару" style="max-height:350px;object-fit:contain;">
+                <img src="{{ url_for('static', filename=auction.get_safe_photo()) }}" class="img-fluid rounded" alt="Фото товару" style="max-height:350px;object-fit:contain;">
             </div>
             {% endif %}
         </div>
@@ -71,12 +69,13 @@
             </div>
             <button type="submit" class="btn btn-warning w-100">Взяти участь</button>
         </form>
-        <button id="view-details-btn" class="btn btn-secondary w-100">
+        <button id="view-details-btn" class="btn btn-info w-100">
             Переглянути поточну ціну (<span id="view-price-btn-amount">1.00</span> €)
             <span id="discount-badge" class="badge bg-success ms-2" style="display:none;"></span>
         </button>
+
         <form id="close-auction-form" method="POST"
-            action="{{ url_for('auction.close_auction', auction_id=auction.id) }}">
+            action="{{ url_for('user.close_auction', auction_id=auction.id) }}">
             <button type="submit" class="btn btn-danger w-100 mt-3">Закрити аукціон</button>
         </form>
         {% else %}
@@ -134,39 +133,39 @@
         }
     });
 
-    // --- Динамічно оновлюємо ціну перегляду та знижку на кнопці ---
-    async function updateViewPriceBtn() {
-        // За замовчуванням 1.00
-        let price = 1.00;
-        let discount = 0;
-        try {
-            const resp = await fetch(`/auction/view/{{ auction.id }}`, {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'include',
-                body: JSON.stringify({ preview: true }) // спец. прапорець для попереднього перегляду
-            });
-            if (resp.ok) {
-                const data = await resp.json();
-                if (typeof data.view_price !== 'undefined') price = data.view_price;
-                if (typeof data.discount_percent !== 'undefined') discount = data.discount_percent;
-            }
-        } catch (e) { /* ігноруємо */ }
-        document.getElementById('view-price-btn-amount').textContent = price.toFixed(2);
-        const badge = document.getElementById('discount-badge');
-        if (discount > 0) {
-            badge.textContent = `-${discount}%`;
-            badge.style.display = '';
-        } else {
-            badge.style.display = 'none';
+// --- Динамічно оновлюємо ціну перегляду та знижку на кнопці ---
+async function updateViewPriceBtn() {
+    let price = 1.00;
+    let discount = 0;
+    try {
+        const resp = await fetch(`/auction/view/{{ auction.id }}`, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'include'
+        });
+        if (resp.ok) {
+            const data = await resp.json();
+            if (typeof data.view_price !== 'undefined') price = data.view_price;
+            if (typeof data.discount_percent !== 'undefined') discount = data.discount_percent;
         }
+    } catch (e) {
+        // ігноруємо
     }
+    document.getElementById('view-price-btn-amount').textContent = price.toFixed(2);
+    const badge = document.getElementById('discount-badge');
+    if (discount > 0) {
+        badge.textContent = `-${discount}%`;
+        badge.style.display = '';
+    } else {
+        badge.style.display = 'none';
+    }
+}
     updateViewPriceBtn();
 
     // --- Оновлюємо відображення ціни після перегляду ---
     document.getElementById('view-details-btn')?.addEventListener('click', async function () {
         try {
-            const response = await fetch(`/auction/view/{{ auction.id }}`, {
+            const response = await fetch(`/auction/view-price/{{ auction.id }}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include'
@@ -200,7 +199,6 @@
         } catch (error) {
             console.error('Помилка:', error);
             alert('Не вдалося оновити перегляд. Спробуйте пізніше.');
-        }
-    });
+        }    });    // Обробник для кнопки перегляду ціни вже існує вище
 </script>
 {% endblock %}

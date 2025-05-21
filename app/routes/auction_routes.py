@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -15,8 +16,6 @@ auction_bp = Blueprint('auction', __name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 UPLOAD_FOLDER = os.path.join('app', 'static', 'images', 'uploads')
-
-# Створення папки для завантаження фотографій, якщо вона не існує
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
@@ -43,7 +42,6 @@ def create_auction():
         flash("Ціна повинна бути числом.", "error")
         return redirect(url_for('user.seller_dashboard', email=current_user.email))
 
-    # Завантаження фотографій
     photos = []
     main_photo_idx = int(request.form.get('main_photo_idx', 0))
     if 'photos' in request.files:
@@ -81,28 +79,30 @@ def create_auction():
     return redirect(url_for('user.seller_dashboard', email=current_user.email))
 
 @auction_bp.route('/<int:auction_id>', methods=['GET', 'POST'])
-@login_required
 def auction_detail(auction_id):
-    auction = Auction.query.get(auction_id)
-
-    if not auction:
-        flash("Аукціон не знайдено.", 'error')
-        return redirect(url_for('auction.buyer_auctions'))
+    lang = session.get('lang', 'ua')
+    try:
+        auction = Auction.query.get_or_404(auction_id)
+    except Exception as e:
+        print(f"Error fetching auction with ID {auction_id}: {e}")
+        flash(get_message('auction_not_found', lang), 'error')
+        return redirect(url_for('main.index'))
 
     if request.method == 'POST':
+        if not current_user.is_authenticated:
+            return jsonify({"error": get_message('login_required', lang)}), 401
+            
         try:
-            entry_price = auction.starting_price * 0.01  # Вхідна ціна (1% від початкової ціни)
+            entry_price = auction.starting_price * 0.01
             participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
 
             if participant and participant.has_paid_entry:
-                return jsonify({"error": "Ви вже сплатили за участь в цьому аукціоні"}), 400
+                return jsonify({"error": get_message('already_participating', lang)}), 400
 
             if current_user.balance < entry_price:
-                return jsonify({"error": "Недостатньо коштів на балансі"}), 400
+                return jsonify({"error": get_message('insufficient_funds', lang)}), 400
 
             buyer = User.query.get(current_user.id)
-
-            # Транзакція участі
             buyer.deduct_balance(entry_price)
 
             auction.total_participants += 1
@@ -110,18 +110,17 @@ def auction_detail(auction_id):
 
             if auction.current_price <= 0:
                 auction.current_price = 0
-                auction.is_active = False  # Закриваємо аукціон
+                auction.is_active = False
 
             if not participant:
                 participant = AuctionParticipant(auction_id=auction_id, user_id=current_user.id)
                 db.session.add(participant)
 
             participant.mark_paid_entry()
-
             db.session.commit()
 
             return jsonify({
-                "message": "Успішно взято участь в аукціоні",
+                "message": get_message('participation_success', lang),
                 "participants": auction.total_participants,
                 "final_price": auction.current_price
             }), 200
@@ -129,159 +128,156 @@ def auction_detail(auction_id):
         except Exception as e:
             db.session.rollback()
             print(f"Помилка участі в аукціоні: {e}")
-            return jsonify({"error": "Не вдалося взяти участь в аукціоні"}), 500
+            return jsonify({"error": get_message('participation_error', lang)}), 500
 
-    return render_template('auctions/auction_detail.html', auction=auction, lang=session.get('lang', 'ua'), ui_text=ui_text)
+    return render_template('auctions/auction_detail.html', auction=auction, lang=lang, ui_text=ui_text)
 
-@auction_bp.route('/view/<int:auction_id>', methods=['POST'])
+@auction_bp.route('/close/<int:auction_id>', methods=['POST'])
 @login_required
-def view_auction(auction_id):
+def close_auction(auction_id):
+    lang = session.get('lang', 'ua')
+
     auction = Auction.query.get(auction_id)
     if not auction:
-        return jsonify({"error": "Аукціон не знайдено"}), 404
+        flash(get_message('auction_not_found', lang), 'error')
+        return redirect(url_for('main.index'))
 
     if not auction.is_active:
-        return jsonify({"error": "Аукціон вже закритий"}), 400
+        flash(get_message('auction_already_closed', lang), 'info')
+        return redirect(url_for('main.index'))
 
-    # Перевіряємо, чи користувач є учасником аукціону
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
-        return jsonify({"error": "Ви повинні сплатити за участь, щоб переглянути цю інформацію"}), 403
+        flash(get_message('participation_required_for_close', lang), 'error')
+        return redirect(url_for('main.index'))
 
-    # --- Додаємо підтримку попереднього перегляду ціни для UI ---
-    if request.is_json:
-        data = request.get_json()
-        if data.get('preview'):
-            view_price = 1.0
-            discount = 0
-            if current_user.wallet_address:
-                try:
-                    discount = get_user_discount(current_user.wallet_address)
-                except Exception as e:
-                    print(f"[WARN] Не вдалося отримати знижку за токеном: {e}")
-                    discount = 0
-            final_price = view_price * (1 - discount / 100)
-            final_price = round(final_price, 2)
-            return jsonify({
-                "view_price": final_price,
-                "discount_percent": discount
-            })
+    if current_user.balance < auction.current_price:
+        flash(get_message('insufficient_funds', lang), 'error')
+        return redirect(url_for('main.index'))
 
     try:
-        view_price = 1.0  # Базова вартість перегляду
+        current_user.deduct_balance(auction.current_price)
+        seller = User.query.get(auction.seller_id)
+        total_entry = auction.total_participants * auction.starting_price * 0.01
+        total_revenue = total_entry + auction.current_price
+        seller.add_balance(total_revenue)
+
+        auction.is_active = False
+        auction.winner_id = current_user.id
+        auction.total_earnings = total_revenue
+        db.session.commit()
+
+        flash(get_message('auction_closed_success', lang), 'success')
+        return redirect(url_for('user.buyer_dashboard', email=current_user.email))
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error closing auction: {e}")
+        flash(get_message('auction_close_failed', lang), 'error')
+        return redirect(url_for('main.index'))
+
+
+@auction_bp.route('/view/<int:auction_id>', methods=['POST'])
+def view_auction_price(auction_id):
+    
+    lang = session.get('lang', 'ua')
+    auction = Auction.query.get(auction_id)
+    if not auction:
+        return jsonify({"error": get_message('auction_not_found', lang)}), 404
+    if not auction.is_active:
+        return jsonify({"error": get_message('auction_closed', lang)}), 400
+
+    # Check if user is authenticated
+    if not current_user.is_authenticated:
+        return jsonify({"error": get_message('login_required', lang)}), 401
+
+    # Check if user is a participant and has paid entry
+    participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
+    if not participant or not participant.has_paid_entry:
+        return jsonify({"error": get_message('not_participant', lang)}), 400
+
+    try:
+        view_price = 1.0  # Євро
         discount = 0
         if current_user.wallet_address:
             try:
                 discount = get_user_discount(current_user.wallet_address)
             except Exception as e:
-                print(f"[WARN] Не вдалося отримати знижку за токеном: {e}")
-                discount = 0
-        final_price = view_price * (1 - discount / 100)
-        final_price = round(final_price, 2)
-        if participant.has_viewed_price:
-            return jsonify({
-                "message": "Ви вже переглядали поточну ціну",
-                "participants": auction.total_participants,
-                "final_price": auction.current_price,
-                "discount_percent": discount,
-                "view_price": final_price
-            }), 200
+                print(f"[WARN] Не вдалося отримати знижку: {e}")
 
-        # Перевірка балансу покупця
+        final_price = round(view_price * (1 - discount / 100), 2)
+
         if not current_user.can_afford(final_price):
-            return jsonify({"error": "Недостатньо коштів на балансі для перегляду"}), 400
+            return jsonify({"error": get_message('insufficient_funds', lang)}), 400
 
-        # Списання коштів у покупця
         current_user.deduct_balance(final_price)
 
-        # Знаходимо адміністратора
         admin = User.query.filter_by(is_admin=True).first()
         if admin:
-            # Додаємо кошти на баланс адміністратора
             admin.add_balance(final_price)
 
-        # Позначаємо, що користувач переглянув ціну
-        participant.mark_viewed_price()
-
-        # Фіксуємо зміни
         db.session.commit()
 
         return jsonify({
-            "message": "Перегляд оновлений",
-            "participants": auction.total_participants,
-            "final_price": auction.current_price,
+            "message": get_message('view_updated', lang),
             "discount_percent": discount,
-            "view_price": final_price
+            "view_price": final_price,
+            "current_price": auction.current_price,
+            "participants": auction.total_participants
         }), 200
 
     except Exception as e:
         db.session.rollback()
-        print(f"Помилка перегляду аукціону: {e}")
-        return jsonify({"error": "Не вдалося оновити перегляд"}), 500
-
-@auction_bp.route('/close/<int:auction_id>', methods=['POST'])
+        print(f"[ERROR] view_auction_price: {e}")
+        return jsonify({"error": get_message('view_update_error', lang)}), 500
+    
+        
+    
+@auction_bp.route('/view-price/<int:auction_id>', methods=['POST'])
 @login_required
-def close_auction(auction_id):
+def view_price_again(auction_id):
+    lang = session.get('lang', 'ua')
     auction = Auction.query.get(auction_id)
-
     if not auction:
-        flash("Аукціон не знайдено.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
+        return jsonify({"error": get_message('auction_not_found', lang)}), 404
     if not auction.is_active:
-        flash("Цей аукціон вже закрито.", "info")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
+        return jsonify({"error": get_message('auction_closed', lang)}), 400
 
-    # Перевірка, чи користувач є учасником аукціону
+    # Перевіряємо участь
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
-        flash("Ви не можете закрити аукціон, оскільки не брали участь у ньому.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-    # Перевірка, чи у користувача достатньо коштів
-    if current_user.balance < auction.current_price:
-        flash("Недостатньо коштів для закриття аукціону.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
+        return jsonify({"error": get_message('not_participant', lang)}), 400
 
     try:
-        buyer = current_user
-        seller = User.query.get(auction.seller_id)
+        view_price = 1.0  # Євро
+        discount = 0
+        if current_user.wallet_address:
+            try:
+                discount = get_user_discount(current_user.wallet_address)
+            except Exception as e:
+                print(f"[WARN] Не вдалося отримати знижку: {e}")
 
-        # Списання коштів з балансу покупця
-        buyer.deduct_balance(auction.current_price)
+        final_price = round(view_price * (1 - discount / 100), 2)
 
-        # Додавання коштів на баланс продавця
-        total_entry_payments = auction.total_participants * auction.starting_price * 0.01
-        total_revenue = total_entry_payments + auction.current_price
-        seller.add_balance(total_revenue)
+        if not current_user.can_afford(final_price):
+            return jsonify({"error": get_message('insufficient_funds', lang)}), 400
 
-        # Закриття аукціону
-        auction.is_active = False
-        auction.winner_id = buyer.id
-        auction.total_earnings = total_revenue
+        current_user.deduct_balance(final_price)
+
+        admin = User.query.filter_by(is_admin=True).first()
+        if admin:
+            admin.add_balance(final_price)
+
         db.session.commit()
 
-        # Відображення повідомлень
-        if current_user.user_type == "seller":
-            flash(f"Ваш товар продано. Покупець: {buyer.username}, Email: {buyer.email}.", "info")
-            return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-        if current_user.user_type == "buyer":
-            flash(f"Ви виграли аукціон! Продавець: {seller.username}, Email: {seller.email}.", "info")
-            return redirect(url_for('user.buyer_dashboard', email=current_user.email))
+        return jsonify({
+            "message": get_message('view_updated', lang),
+            "discount_percent": discount,
+            "view_price": final_price,
+            "current_price": auction.current_price,
+            "participants": auction.total_participants
+        }), 200
 
     except Exception as e:
         db.session.rollback()
-        print(f"Помилка закриття аукціону: {e}")
-        flash("Не вдалося закрити аукціон. Спробуйте пізніше.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-@auction_bp.route('/card')
-def auction_card():
-    lang = session.get('lang', 'ua')
-    # auction, user, img_url must be passed from the parent context
-    if lang == 'en':
-        return render_template('auctions/auction_card_en.html', lang=lang)
-    elif lang == 'de':
-        return render_template('auctions/auction_card_de.html', lang=lang)
-    return render_template('auctions/auction_card.html', lang=lang)
+        print(f"[ERROR] view_price_again: {e}")
+        return jsonify({"error": get_message('view_update_error', lang)}), 500

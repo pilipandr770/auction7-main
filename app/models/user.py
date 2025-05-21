@@ -20,14 +20,14 @@ class User(UserMixin, db.Model):
     is_verified = db.Column(Boolean, default=False)
     company_name = db.Column(db.String(255))
     tax_id = db.Column(db.String(64))
-    language = db.Column(db.String(5), default='ua')  # 'ua', 'en', 'de'
-
-    # Зв'язки
+    language = db.Column(db.String(5), default='ua')  # 'ua', 'en', 'de'    # Зв'язки
     auctions_created = db.relationship('Auction', foreign_keys='Auction.seller_id', backref='seller', lazy=True)
     auctions_won = db.relationship('Auction', foreign_keys='Auction.winner_id', backref='winner', lazy=True)
     auction_participations = db.relationship('AuctionParticipant', back_populates='user', lazy=True)
 
-    def __init__(self, username, email, password, user_type, is_admin=False):
+    def __init__(self, username, email, password, user_type, language='ua', is_admin=False, 
+                 company_name=None, tax_id=None, verification_document=None, is_verified=False, 
+                 wallet_address=None):
         self.username = username
         self.email = email
         self.set_password(password)
@@ -35,6 +35,12 @@ class User(UserMixin, db.Model):
             raise ValueError("Неприпустимий тип користувача")
         self.user_type = user_type
         self.is_admin = is_admin
+        self.language = language
+        self.company_name = company_name
+        self.tax_id = tax_id
+        self.verification_document = verification_document
+        self.is_verified = is_verified
+        self.wallet_address = wallet_address
 
     def set_password(self, password):
         """Зберігає хешований пароль."""

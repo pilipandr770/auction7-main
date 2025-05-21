@@ -102,15 +102,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         requestAnimationFrame(checkPerformance);
-    }
-
-    document.querySelectorAll('.auction-toggle-btn').forEach(function (btn) {
+    }    document.querySelectorAll('.auction-toggle-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var auctionId = btn.getAttribute('data-auction-id');
             var modal = document.getElementById('auctionModal-' + auctionId);
             if (modal) {
-                var bsModal = new bootstrap.Modal(modal);
-                bsModal.show();
+                try {
+                    var bsModal = new bootstrap.Modal(modal);
+                    bsModal.show();
+                } catch (error) {
+                    console.error("Error showing modal:", error);
+                    // Fallback to direct navigation if modal fails
+                    window.location.href = "/auction/" + auctionId;
+                }
+            } else {
+                console.error("Modal element not found for auction ID:", auctionId);
+                // Fallback to direct navigation if modal element is missing
+                window.location.href = "/auction/" + auctionId;
             }
         });
     });
