@@ -1,58 +1,60 @@
-{% extends 'base.html' %}
-{% block title %}{{ ui_text('seller_dashboard_title', lang) }}{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Seller Dashboard{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <div class="text-center mb-4">
-        <h1 class="text-secondary">{{ ui_text('seller_dashboard_title', lang) }}</h1>
+        <h1 class="text-secondary">Seller Dashboard</h1>
     </div>
 
-    <!-- Seller Information -->
+    <!-- Seller info -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="card-title text-warning">{{ ui_text('seller_info_title', lang) }}</h3>
-            <p><strong>{{ ui_text('username', lang) }}:</strong> {{ user.username }}</p>
-            <p><strong>{{ ui_text('email', lang) }}:</strong> {{ user.email }}</p>
-            <p><strong>{{ ui_text('balance_completed_auctions', lang) }}:</strong> {{ balance_from_completed | round(2) }} UAH</p>
+            <h3 class="card-title text-warning">Seller Information</h3>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Balance from completed auctions:</strong> {{ balance_from_completed | round(2) }} EUR</p>
         </div>
     </div>
 
-    <!-- Crypto hint -->
+    <!-- Crypto payments info -->
     <div class="alert alert-info mb-4">
-        <b>{{ ui_text('crypto_functions', lang) }}:</b> {{ ui_text('auction_payments_info', lang) }}
+        <b>Crypto functions:</b> You can receive payments in tokens and attract new buyers.
     </div>
 
-    <!-- Create auction form -->
+    <!-- Auction creation form -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="card-title text-secondary">{{ ui_text('create_auction_title', lang) }}</h3>
+            <h3 class="card-title text-secondary">Create Auction</h3>
             <form action="/auction/create" method="POST" enctype="multipart/form-data" class="row g-3">
                 <div class="col-12">
-                    <label for="title" class="form-label">{{ ui_text('title', lang) }}:</label>
+                    <label for="title" class="form-label">Title:</label>
                     <input type="text" id="title" name="title" class="form-control" required>
                 </div>
                 <div class="col-12">
-                    <label for="description" class="form-label">{{ ui_text('description', lang) }}:</label>
+                    <label for="description" class="form-label">Description:</label>
                     <textarea id="description" name="description" class="form-control" required></textarea>
                 </div>
                 <div class="col-12">
-                    <label for="starting_price" class="form-label">{{ ui_text('starting_price', lang) }}:</label>
+                    <label for="starting_price" class="form-label">Starting Price:</label>
                     <input type="number" id="starting_price" name="starting_price" class="form-control" required>
                 </div>
                 <div class="col-12">
-                    <label for="photos" class="form-label">{{ ui_text('photos', lang) }}:</label>
+                    <label for="photos" class="form-label">Photos:</label>
                     <input type="file" id="photos" name="photos" class="form-control" multiple accept="image/*">
                 </div>
                 <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-warning w-50">{{ ui_text('create_auction', lang) }}</button>
+                    <button type="submit" class="btn btn-warning w-50">Create Auction</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- My auctions -->
+    <!-- Seller's auctions -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="card-title text-secondary">{{ ui_text('my_auctions', lang) }}</h3>
+            <h3 class="card-title text-secondary">My Auctions</h3>
             {% if auctions %}
             <ul class="list-group">
                 {% for auction in auctions %}
@@ -60,23 +62,26 @@
                     <div>
                         <h5 class="text-secondary">{{ auction.title }}</h5>
                         <p class="text-muted">{{ auction.description }}</p>
-                        <p class="text-muted"><strong>{{ ui_text('starting_price', lang) }}:</strong> {{ auction.starting_price }} UAH</p>
-                        <p class="text-muted"><strong>{{ ui_text('status', lang) }}:</strong>
+                        <p class="text-muted"><strong>Starting Price:</strong> {{ auction.starting_price }} EUR</p>
+                        <p class="text-muted"><strong>Status:</strong>
                             <span class="{{ 'text-success' if auction.is_active else 'text-danger' }}">
-                                {{ ui_text('active', lang) if auction.is_active else ui_text('closed', lang) }}
+                                {{ 'Active' if auction.is_active else 'Closed' }}
                             </span>
                         </p>
                         {% if not auction.is_active %}
-                        <p><strong>{{ ui_text('earned_from_auction', lang) }}:</strong> {{ auction.total_earnings | round(2) }} UAH</p>
-                        <p><strong>{{ ui_text('participants_count', lang) }}:</strong> {{ auction.total_participants }}</p>
+                        <p><strong>Earned from auction:</strong> {{ auction.total_earnings | round(2) }} EUR</p>
+                        <p><strong>Participants count:</strong> {{ auction.total_participants }}</p>
                         {% if auction.winner %}
-                        <p><strong>{{ ui_text('winner', lang) }}:</strong></p>
+                        <p><strong>Winner:</strong></p>
                         <ul>
-                            <li><strong>{{ ui_text('name', lang) }}:</strong> {{ auction.winner.username }}</li>
-                            <li><strong>{{ ui_text('email', lang) }}:</strong> {{ auction.winner.email }}</li>
+                            <li><strong>Name:</strong> {{ auction.winner.username }}</li>
+                            <li><strong>Email:</strong> {{ auction.winner.email }}</li>
+                            {% if auction.winner.phone %}
+                            <li><strong>Phone:</strong> {{ auction.winner.phone }}</li>
+                            {% endif %}
                         </ul>
                         <div class="alert alert-secondary p-2 mt-2">
-                            <b>{{ ui_text('payment_status', lang) }}:</b> {{ ui_text('awaiting_confirmation', lang) }}
+                            <b>Payment status:</b> Awaiting confirmation
                         </div>
                         {% endif %}
                         {% endif %}
@@ -85,40 +90,39 @@
                 {% endfor %}
             </ul>
             {% else %}
-            <p class="text-muted text-center">{{ ui_text('no_created_auctions', lang) }}</p>
+            <p class="text-muted text-center">No created auctions.</p>
             {% endif %}
         </div>
     </div>
 
-    <!-- Seller help -->
+    <!-- Seller help info -->
     <div class="card shadow-sm border-0 mt-5">
         <div class="card-body">
-            <h3 class="card-title text-primary">{{ ui_text('how_to_set_prices', lang) }}</h3>
-            <p>{{ ui_text('fair_market_price_info', lang) }}</p>
-            <p>{{ ui_text('lower_starting_price_more_chances', lang) }}</p>
-            
-            <h5>{{ ui_text('entry_price_importance', lang) }}</h5>
-            <p>{{ ui_text('participation_fee_info', lang) }}</p>
-            <p>{{ ui_text('set_entry_price_to_attract_participants', lang) }}</p>
+            <h3 class="card-title text-primary">How to Set Prices for Auctions</h3>
+            <p>Set a fair starting price to attract more buyers and increase chances for a successful sale.</p>
+            <p>The lower the starting price, the more people will be interested.</p>
+
+            <h5>Importance of Entry Fee</h5>
+            <p>The entry fee motivates buyers to participate and gives more chances for a price reduction.</p>
+            <p>Set an entry fee that is attractive to buyers:</p>
             <ul>
-                <li><b>1000 EUR</b> — {{ ui_text('very_few_participants', lang) }}.</li>
-                <li><b>100 EUR</b> — {{ ui_text('few_participants', lang) }}.</li>
-                <li><b>10 EUR</b> — {{ ui_text('enough_participants', lang) }}.</li>
-                <li><b>1 EUR</b> — {{ ui_text('maximum_interested', lang) }}.</li>
+                <li><b>1000 EUR</b> — very few participants.</li>
+                <li><b>100 EUR</b> — few participants.</li>
+                <li><b>10 EUR</b> — enough participants.</li>
+                <li><b>1 EUR</b> — maximum interested.</li>
             </ul>
 
-            <h5>{{ ui_text('example', lang) }}:</h5>
-            <p>{{ ui_text('selling_mercedes_example', lang) }}</p>
+            <h5>Example:</h5>
+            <p>To sell a car, for example, start at 5000 EUR — this attracts more buyers and increases competition.</p>
 
-            <h5>{{ ui_text('caring_for_participants', lang) }}</h5>
-            <p>{{ ui_text('founders_guarantee_fairness', lang) }}</p>
+            <h5>Caring for participants</h5>
+            <p>The founders guarantee fair play for all:</p>
             <ul>
-                <li>{{ ui_text('buyer_receives_goods', lang) }}.</li>
-                <li>{{ ui_text('seller_receives_payments', lang) }}.</li>
-                <li>{{ ui_text('other_participants_lose_entry', lang) }}.</li>
+                <li>The buyer receives the goods.</li>
+                <li>The seller receives all payments.</li>
+                <li>Other participants only lose the entry fee.</li>
             </ul>
-
-            <p><strong>{{ ui_text('seller_risk_free', lang) }}</strong> — {{ ui_text('seller_paid_quickly_or_later', lang) }}.</p>
+            <p><strong>For the seller, it's risk-free</strong> — you get paid either quickly or a bit later, but always fairly!</p>
         </div>
     </div>
 </div>

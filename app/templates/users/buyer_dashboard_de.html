@@ -1,67 +1,92 @@
 {% extends "base.html" %}
-{% block title %}{{ ui_text('buyer_dashboard_title', lang) }}{% endblock %}
+
+{% block title %}Käufer-Dashboard{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <div class="text-center mb-4">
-        <h1 class="text-secondary">{{ ui_text('buyer_dashboard_header', lang) }}</h1>
-        <p class="text-muted">{{ ui_text('buyer_dashboard_username', lang) }}: <strong>{{ user.username }}</strong></p>
-        <p>{{ ui_text('buyer_dashboard_balance', lang) }}: <strong><span id="balance-display">{{ user.balance }}</span> UAH</strong></p>
+        <h1 class="text-secondary">Käufer-Dashboard</h1>
+        <p class="text-muted">Benutzername: <strong>{{ user.username }}</strong></p>
+        <p>Kontostand: <strong><span id="balance-display">{{ user.balance }}</span> EUR</strong></p>
     </div>
+
+    <!-- Erinnerung zur Bestätigung des Warenerhalts -->
     {% if pending_confirmations %}
     <div class="alert alert-warning mb-4">
-        <b>{{ ui_text('buyer_dashboard_pending_confirmations_header', lang) }}</b>
+        <b>Auktionen, die auf Bestätigung des Erhalts warten</b>
         <ul>
             {% for auction in pending_confirmations %}
             <li>
                 <b>{{ auction.title }}</b> —
                 <form method="POST" action="{{ url_for('user.confirm_receive', auction_id=auction.id) }}" style="display:inline;">
-                    <button type="submit" class="btn btn-success btn-sm">{{ ui_text('buyer_dashboard_confirm_receive', lang) }}</button>
+                    <button type="submit" class="btn btn-success btn-sm">Erhalt bestätigen</button>
                 </form>
+                <!-- Verkäuferkontakt -->
+                <div class="mt-2 ps-2">
+                    <strong>Kontaktdaten des Verkäufers:</strong><br>
+                    <span>Name: {{ auction.seller.username }}</span><br>
+                    <span>E-Mail: {{ auction.seller.email }}</span><br>
+                    {% if auction.seller.phone %}
+                        <span>Telefon: {{ auction.seller.phone }}</span>
+                    {% endif %}
+                </div>
             </li>
             {% endfor %}
         </ul>
     </div>
     {% endif %}
+
+    <!-- Info über Krypto-Funktionen -->
     <div class="alert alert-info mb-4">
-        <b>{{ ui_text('buyer_dashboard_crypto_info_header', lang) }}</b> {{ ui_text('buyer_dashboard_crypto_info_body', lang) }}
+        <b>Krypto-Funktionen:</b> Sie können Ihre Wallet verbinden, um an Token-Auktionen teilzunehmen und Rabatte zu erhalten.
     </div>
+
+    <!-- Wie man vorteilhaft und verantwortungsvoll teilnimmt -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="card-title text-primary">{{ ui_text('buyer_dashboard_auction_tips_header', lang) }}</h3>
-            <h5>🎯 {{ ui_text('buyer_dashboard_fair_price', lang) }}</h5>
-            <p>{{ ui_text('buyer_dashboard_fair_price_description', lang) }}</p>
-            <h5>🚪 {{ ui_text('buyer_dashboard_entry_price', lang) }}</h5>
-            <p>{{ ui_text('buyer_dashboard_entry_price_description', lang) }}</p>
-            <h5>💡 {{ ui_text('buyer_dashboard_buyer_advantages', lang) }}</h5>
-            <p>{{ ui_text('buyer_dashboard_buyer_advantages_description', lang) }}</p>
-            <h5>⚡ {{ ui_text('buyer_dashboard_risks_responsibility', lang) }}</h5>
-            <p>{{ ui_text('buyer_dashboard_risks_responsibility_description', lang) }}</p>
-            <h5>🎯 {{ ui_text('buyer_dashboard_experienced_buyer_strategy', lang) }}</h5>
-            <p>{{ ui_text('buyer_dashboard_experienced_buyer_strategy_description', lang) }}</p>
-            <h5>📌 {{ ui_text('buyer_dashboard_summary', lang) }}</h5>
+            <h3 class="card-title text-primary">Wie Sie bei Auktionen profitieren</h3>
+
+            <h5>🎯 Fairer Preis</h5>
+            <p>Sie können einen Artikel zu einem durch die Aktivität der Teilnehmer bestimmten Preis gewinnen.</p>
+
+            <h5>🚪 Teilnahmegebühr</h5>
+            <p>Um an einer Auktion teilzunehmen, zahlen Sie nur eine geringe Gebühr (1% des Startpreises).</p>
+
+            <h5>💡 Vorteile für Käufer</h5>
+            <p>Die Möglichkeit, mit Rabatt zu gewinnen, Transparenz im Prozess, Unterstützung durch KI-Assistenten.</p>
+
+            <h5>⚡ Risiken und Verantwortung</h5>
+            <p>Die Teilnahme ist immer mit einem Risiko verbunden. Handeln Sie verantwortungsvoll und schätzen Sie Ihre Möglichkeiten realistisch ein.</p>
+
+            <h5>🎯 Strategie eines erfahrenen Käufers</h5>
+            <p>Analysieren Sie die Auktionsdynamik, überstürzen Sie keine Entscheidungen, nutzen Sie alle verfügbaren Werkzeuge.</p>
+
+            <h5>📌 Zusammenfassung</h5>
             <ul>
-                <li>{{ ui_text('buyer_dashboard_choose_auction_carefully', lang) }}</li>
-                <li>{{ ui_text('buyer_dashboard_participate_consciously', lang) }}</li>
-                <li>{{ ui_text('buyer_dashboard_consider_all_opportunities', lang) }}</li>
-                <li>{{ ui_text('buyer_dashboard_be_patient', lang) }}</li>
+                <li>Wählen Sie Auktionen sorgfältig aus</li>
+                <li>Nehmen Sie verantwortungsvoll teil</li>
+                <li>Berücksichtigen Sie alle Möglichkeiten</li>
+                <li>Seien Sie geduldig</li>
             </ul>
-            <p><strong>{{ ui_text('buyer_dashboard_transparency_commitment', lang) }}</strong></p>
+            <p><strong>Wir garantieren Transparenz und Fairness bei jeder Auktion!</strong></p>
         </div>
     </div>
+
+    <!-- Liste der verfügbaren Auktionen -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="card-title text-secondary">{{ ui_text('buyer_dashboard_available_auctions', lang) }}</h3>
+            <h3 class="card-title text-secondary">Verfügbare Auktionen</h3>
             {% if auctions %}
             <div class="row">
                 {% for auction in auctions %}
                 <div class="col-md-4 d-flex align-items-stretch">
                     {% set img_url = auction.photos[0] if auction.photos and auction.photos[0] else 'images/default.jpg' %}
-                    {% include 'auctions/auction_card_de.html' with context %}
+                    {% include 'auctions/auction_card.html' with context %}
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-muted text-center">{{ ui_text('buyer_dashboard_no_auctions', lang) }}</p>
+            <p class="text-muted text-center">Keine verfügbaren Auktionen.</p>
             {% endif %}
         </div>
     </div>
