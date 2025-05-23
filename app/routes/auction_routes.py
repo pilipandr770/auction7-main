@@ -259,6 +259,45 @@ def view_auction_price(auction_id):
         print(f"[ERROR] view_auction_price: {e}")
         return jsonify({"error": get_message('view_update_error', lang)}), 500
 
+@auction_bp.route('/contact_details/<int:auction_id>', methods=['GET'])
+@login_required
+def auction_contact_details(auction_id):
+    lang = session.get('lang', 'ua')
+    auction = Auction.query.get(auction_id)
+    if not auction:
+        flash(get_message('auction_not_found', lang), 'error')
+        return redirect(url_for('main.index'))
+
+    if not auction.winner_id or auction.is_active:
+        flash(get_message('auction_not_closed', lang), 'error')
+        return redirect(url_for('main.index'))
+
+    # Покупець — показуємо контакти продавця
+    if current_user.id == auction.winner_id:
+        seller = User.query.get(auction.seller_id)
+        if lang == 'en':
+            return render_template('users/seller_contact_en.html', seller=seller, lang=lang, ui_text=ui_text)
+        elif lang == 'de':
+            return render_template('users/seller_contact_de.html', seller=seller, lang=lang, ui_text=ui_text)
+        return render_template('users/seller_contact.html', seller=seller, lang=lang, ui_text=ui_text)
+
+    # Продавець — показуємо контакти покупця (треба створити buyer_contact.html)
+    if current_user.id == auction.seller_id:
+        buyer = User.query.get(auction.winner_id)
+        if lang == 'en':
+            return render_template('users/buyer_contact_en.html', buyer=buyer, lang=lang, ui_text=ui_text)
+        elif lang == 'de':
+            return render_template('users/buyer_contact_de.html', buyer=buyer, lang=lang, ui_text=ui_text)
+        return render_template('users/buyer_contact.html', buyer=buyer, lang=lang, ui_text=ui_text)
+
+    # За замовчуванням повертаємо сторінку закриття
+    if lang == 'en':
+        return render_template('auctions/auction_close_en.html', auction=auction, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auctions/auction_close_de.html', auction=auction, lang=lang, ui_text=ui_text)
+    return render_template('auctions/auction_close.html', auction=auction, lang=lang, ui_text=ui_text)
+
+
 @auction_bp.route('/view-price/<int:auction_id>', methods=['POST'])
 @login_required
 def view_price_again(auction_id):

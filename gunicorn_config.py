@@ -14,6 +14,10 @@ timeout = 600  # Increased timeout for handling longer requests
 keepalive = 120  # Keep connections alive
 worker_connections = 1000
 
+# Log the port we're binding to for debugging
+port = os.environ.get("PORT", "10000")
+print(f"Gunicorn binding to port {port}")
+
 # Graceful shutdown and restart
 graceful_timeout = 120
 max_requests = 1000
