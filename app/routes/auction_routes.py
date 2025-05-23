@@ -1,5 +1,4 @@
-
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
@@ -10,7 +9,6 @@ from app.models.auction_participant import AuctionParticipant
 from blockchain_payments.payment_token_discount import get_user_discount
 from app.utils.i18n_messages import get_message
 from app.utils.i18n_ui import ui_text
-from flask import session
 
 auction_bp = Blueprint('auction', __name__)
 
@@ -21,62 +19,84 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@auction_bp.route('/create', methods=['POST'])
+# ======================= CREATE AUCTION =======================
+
+@auction_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_auction():
-    if current_user.user_type != 'seller':
-        flash("Тільки продавці можуть створювати аукціони.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-    title = request.form.get('title')
-    description = request.form.get('description')
-    starting_price = request.form.get('starting_price')
-
-    if not title or not description or not starting_price:
-        flash("Усі поля обов'язкові.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-    try:
-        starting_price = float(starting_price)
-    except ValueError:
-        flash("Ціна повинна бути числом.", "error")
-        return redirect(url_for('user.seller_dashboard', email=current_user.email))
-
-    photos = []
-    main_photo_idx = int(request.form.get('main_photo_idx', 0))
-    if 'photos' in request.files:
-        files = request.files.getlist('photos')
-        if len(files) > 10:
-            flash("Можна завантажити не більше 10 фотографій.", "error")
+    lang = session.get('lang', 'ua')
+    if request.method == 'POST':
+        if current_user.user_type != 'seller':
+            flash(get_message("only_sellers_create", lang), "error")
             return redirect(url_for('user.seller_dashboard', email=current_user.email))
-        for file in files:
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(UPLOAD_FOLDER, filename)
-                file.save(filepath)
-                photos.append(f"images/uploads/{filename}")
 
-    try:
-        new_auction = Auction(
-            title=title,
-            description=description,
-            starting_price=starting_price,
-            seller_id=current_user.id,
-            photos=photos,
-            main_photo_idx=main_photo_idx if 0 <= main_photo_idx < len(photos) else 0
-        )
-        db.session.add(new_auction)
-        db.session.commit()
+        title = request.form.get('title')
+        description = request.form.get('description')
+        starting_price = request.form.get('starting_price')
 
-        lang = session.get('lang', 'ua')
-        flash(get_message('auction_action_success', lang), 'success')
-    except Exception as e:
-        db.session.rollback()
-        print(f"Помилка створення аукціону: {e}")
-        lang = session.get('lang', 'ua')
-        flash(get_message('auction_action_error', lang), 'error')
+        if not title or not description or not starting_price:
+            flash(get_message("all_fields_required", lang), "error")
+            return redirect(url_for('user.seller_dashboard', email=current_user.email))
 
-    return redirect(url_for('user.seller_dashboard', email=current_user.email))
+        try:
+            starting_price = float(starting_price)
+        except ValueError:
+            flash(get_message("price_must_be_number", lang), "error")
+            return redirect(url_for('user.seller_dashboard', email=current_user.email))
+
+        photos = []
+        main_photo_idx = int(request.form.get('main_photo_idx', 0))
+        if 'photos' in request.files:
+            files = request.files.getlist('photos')
+            if len(files) > 10:
+                flash(get_message("max_10_photos", lang), "error")
+                return redirect(url_for('user.seller_dashboard', email=current_user.email))
+            for file in files:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(UPLOAD_FOLDER, filename)
+                    file.save(filepath)
+                    photos.append(f"images/uploads/{filename}")
+
+        try:
+            new_auction = Auction(
+                title=title,
+                description=description,
+                starting_price=starting_price,
+                seller_id=current_user.id,
+                photos=photos,
+                main_photo_idx=main_photo_idx if 0 <= main_photo_idx < len(photos) else 0
+            )
+            db.session.add(new_auction)
+            db.session.commit()
+            flash(get_message('auction_action_success', lang), 'success')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Помилка створення аукціону: {e}")
+            flash(get_message('auction_action_error', lang), 'error')
+
+        return redirect(url_for('user.seller_dashboard', email=current_user.email))
+
+    # GET-запит (форма створення)
+    if lang == 'en':
+        return render_template('auctions/create_auction_en.html', lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auctions/create_auction_de.html', lang=lang, ui_text=ui_text)
+    return render_template('auctions/create_auction.html', lang=lang, ui_text=ui_text)
+
+# ======================= AUCTION LIST =======================
+
+@auction_bp.route('/list', methods=['GET'])
+def auction_list():
+    lang = session.get('lang', 'ua')
+    auctions = Auction.query.filter_by(is_active=True).all()
+    if lang == 'en':
+        return render_template('auctions/auction_list_en.html', auctions=auctions, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auctions/auction_list_de.html', auctions=auctions, lang=lang, ui_text=ui_text)
+    return render_template('auctions/auction_list.html', auctions=auctions, lang=lang, ui_text=ui_text)
+
+# ======================= AUCTION DETAIL =======================
 
 @auction_bp.route('/<int:auction_id>', methods=['GET', 'POST'])
 def auction_detail(auction_id):
@@ -91,7 +111,7 @@ def auction_detail(auction_id):
     if request.method == 'POST':
         if not current_user.is_authenticated:
             return jsonify({"error": get_message('login_required', lang)}), 401
-            
+
         try:
             entry_price = auction.starting_price * 0.01
             participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
@@ -130,13 +150,18 @@ def auction_detail(auction_id):
             print(f"Помилка участі в аукціоні: {e}")
             return jsonify({"error": get_message('participation_error', lang)}), 500
 
+    if lang == 'en':
+        return render_template('auctions/auction_detail_en.html', auction=auction, lang=lang, ui_text=ui_text)
+    elif lang == 'de':
+        return render_template('auctions/auction_detail_de.html', auction=auction, lang=lang, ui_text=ui_text)
     return render_template('auctions/auction_detail.html', auction=auction, lang=lang, ui_text=ui_text)
 
-@auction_bp.route('/close/<int:auction_id>', methods=['POST'])
+# ======================= AUCTION CLOSE =======================
+
+@auction_bp.route('/close/<int:auction_id>', methods=['POST', 'GET'])
 @login_required
 def close_auction(auction_id):
     lang = session.get('lang', 'ua')
-
     auction = Auction.query.get(auction_id)
     if not auction:
         flash(get_message('auction_not_found', lang), 'error')
@@ -168,17 +193,23 @@ def close_auction(auction_id):
         db.session.commit()
 
         flash(get_message('auction_closed_success', lang), 'success')
-        return redirect(url_for('user.buyer_dashboard', email=current_user.email))
+        # Після закриття показуємо сторінку завершення
+        if lang == 'en':
+            return render_template('auctions/auction_close_en.html', auction=auction, lang=lang, ui_text=ui_text)
+        elif lang == 'de':
+            return render_template('auctions/auction_close_de.html', auction=auction, lang=lang, ui_text=ui_text)
+        return render_template('auctions/auction_close.html', auction=auction, lang=lang, ui_text=ui_text)
+
     except Exception as e:
         db.session.rollback()
         print(f"Error closing auction: {e}")
         flash(get_message('auction_close_failed', lang), 'error')
         return redirect(url_for('main.index'))
 
+# ======================= VIEW AUCTION PRICE =======================
 
 @auction_bp.route('/view/<int:auction_id>', methods=['POST'])
 def view_auction_price(auction_id):
-    
     lang = session.get('lang', 'ua')
     auction = Auction.query.get(auction_id)
     if not auction:
@@ -186,11 +217,9 @@ def view_auction_price(auction_id):
     if not auction.is_active:
         return jsonify({"error": get_message('auction_closed', lang)}), 400
 
-    # Check if user is authenticated
     if not current_user.is_authenticated:
         return jsonify({"error": get_message('login_required', lang)}), 401
 
-    # Check if user is a participant and has paid entry
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
         return jsonify({"error": get_message('not_participant', lang)}), 400
@@ -229,9 +258,7 @@ def view_auction_price(auction_id):
         db.session.rollback()
         print(f"[ERROR] view_auction_price: {e}")
         return jsonify({"error": get_message('view_update_error', lang)}), 500
-    
-        
-    
+
 @auction_bp.route('/view-price/<int:auction_id>', methods=['POST'])
 @login_required
 def view_price_again(auction_id):
@@ -242,7 +269,6 @@ def view_price_again(auction_id):
     if not auction.is_active:
         return jsonify({"error": get_message('auction_closed', lang)}), 400
 
-    # Перевіряємо участь
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
         return jsonify({"error": get_message('not_participant', lang)}), 400
