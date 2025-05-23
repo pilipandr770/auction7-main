@@ -43,22 +43,21 @@ def buyer_dashboard(email):
     if not user:
         lang = session.get('lang', 'ua')
         flash(get_message('user_not_found', lang), 'error')
-        return redirect(url_for('auth.login'))
-
-    # Активні аукціони
+        return redirect(url_for('auth.login'))    # Активні аукціони
     auctions = Auction.query.filter_by(is_active=True).all()
     # Аукціони, які очікують підтвердження отримання (переможець — поточний користувач)
     pending_confirmations = Auction.query.filter_by(is_active=False, is_confirmed=False, winner_id=current_user.id).all()
-
+    
+    lang = session.get('lang', 'ua')
+    
     if request.method == 'POST':
         auction_id = request.form.get('auction_id')
         auction = Auction.query.get(auction_id)
-
         if not auction:
             lang = session.get('lang', 'ua')
             flash(get_message('auction_not_found', lang), 'error')
             return redirect(url_for('user.buyer_dashboard', email=current_user.email))
-
+        
         try:
             view_price = 1.0
             participant = AuctionParticipant.query.filter_by(auction_id=auction.id, user_id=current_user.id).first()
@@ -90,13 +89,30 @@ def buyer_dashboard(email):
             print(f"Помилка перегляду ціни: {e}")
             lang = session.get('lang', 'ua')
             flash(get_message('view_failed', lang), 'error')
-
-    lang = session.get('lang', 'ua')
+    # For each auction, pass the participant object for the current user (if any)
+    auction_participants = {}
+    try:
+        # Try to get participants using get_participant method
+        for a in auctions:
+            try:
+                if hasattr(a, 'get_participant'):
+                    auction_participants[a.id] = a.get_participant(current_user.id)
+                else:
+                    # Fallback: Directly query AuctionParticipant if method doesn't exist
+                    from app.models.auction_participant import AuctionParticipant
+                    auction_participants[a.id] = AuctionParticipant.query.filter_by(
+                        auction_id=a.id, user_id=current_user.id).first()
+            except Exception as e:
+                print(f"[ERROR] Failed to get participant for auction {a.id}: {e}")
+                auction_participants[a.id] = None
+    except Exception as e:
+        print(f"[ERROR] Error while handling participants: {e}")
+    
     if lang == 'en':
-        return render_template('users/buyer_dashboard_en.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
+        return render_template('users/buyer_dashboard_en.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text, auction_participants=auction_participants)
     elif lang == 'de':
-        return render_template('users/buyer_dashboard_de.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
-    return render_template('users/buyer_dashboard.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text)
+        return render_template('users/buyer_dashboard_de.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text, auction_participants=auction_participants)
+    return render_template('users/buyer_dashboard.html', user=user, auctions=auctions, pending_confirmations=pending_confirmations, lang=lang, ui_text=ui_text, auction_participants=auction_participants)
 
 @user_bp.route('/seller/<string:email>', methods=['GET'])
 @login_required

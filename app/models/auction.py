@@ -175,8 +175,7 @@ class Auction(db.Model):
             photo_path = self.photos[0]
         else:
             return fallback_image
-            
-        # Check if file exists
+              # Check if file exists
         full_path = os.path.join(current_app.static_folder, photo_path)
         if os.path.isfile(full_path):
             return photo_path
@@ -184,3 +183,15 @@ class Auction(db.Model):
             # Log the missing file
             print(f"Warning: Image file not found: {photo_path}")
             return fallback_image
+            
+    def get_participant(self, user_id):
+        """
+        Повертає об'єкт AuctionParticipant для цього аукціону та user_id, або None.
+        """
+        print(f"[DEBUG] Getting participant for auction ID: {self.id}, user ID: {user_id}")
+        try:
+            return self.participants.filter_by(user_id=user_id).first()
+        except Exception as e:
+            print(f"[ERROR] Failed to get participant: {e}")
+            from app.models.auction_participant import AuctionParticipant
+            return AuctionParticipant.query.filter_by(auction_id=self.id, user_id=user_id).first()

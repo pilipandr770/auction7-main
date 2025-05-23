@@ -65,9 +65,14 @@
           {# <p class="mb-2"><b>Поточна ціна:</b> {{ auction.current_price }} грн</p> #}
           <p class="mb-2"><b>Статус:</b> <span class="{{ 'text-success' if auction.is_active else 'text-danger' }}">{{ 'Активний' if auction.is_active else 'Закритий' }}</span></p>
           <p class="mb-2"><b>Продавець:</b> {{ auction.seller.username }} ({{ auction.seller.email }})</p>
+          {% set participant = auction_participants[auction.id] if auction_participants is defined else None %}
           {% if auction.is_active %}
             <button class="btn btn-outline-primary btn-sm w-100 mb-2 participate-btn" data-auction-id="{{ auction.id }}" data-url="/user/participate/{{ auction.id }}">Взяти участь ({{ auction.starting_price * 0.01 }} грн)</button>
-            <button class="btn btn-outline-warning btn-sm w-100 mb-2 view-price-btn" data-auction-id="{{ auction.id }}" data-url="/auction/view/{{ auction.id }}">Дізнатись поточну ціну (1 грн)</button>
+            {% if participant and participant.has_paid_entry %}
+              <button class="btn btn-outline-warning btn-sm w-100 mb-2 view-price-btn" data-auction-id="{{ auction.id }}" data-url="/auction/view-price/{{ auction.id }}">Дізнатись поточну ціну (1 грн)</button>
+            {% else %}
+              <button class="btn btn-outline-warning btn-sm w-100 mb-2 view-price-btn" data-auction-id="{{ auction.id }}" data-url="/auction/view/{{ auction.id }}">Дізнатись поточну ціну (1 грн)</button>
+            {% endif %}
             <button class="btn btn-danger btn-sm w-100 mb-2 close-auction-btn" data-auction-id="{{ auction.id }}" data-url="/user/close_auction/{{ auction.id }}">Закрити аукціон</button>
             <div class="auction-action-result mt-2" id="auction-action-result-{{ auction.id }}" style="display:none;"></div>
           {% elif not auction.is_active and auction.seller and auction.winner and auction.winner.id == user.id %}
