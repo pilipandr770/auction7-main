@@ -13,3 +13,4 @@ flask_login
 email_validator
 gunicorn
 gevent
+gTTS>=2.3.1

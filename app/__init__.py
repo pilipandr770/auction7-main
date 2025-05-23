@@ -2,6 +2,9 @@ from flask import Flask, session, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask import session
+from app.utils.i18n_ui import ui_text
+
 
 # Ініціалізація розширень
 db = SQLAlchemy()
@@ -9,8 +12,8 @@ migrate = Migrate()
 login_manager = LoginManager()
 
 def register_error_handlers(app):
-    from app.utils.i18n_ui import ui_text
-    from flask import session
+    
+    
     @app.errorhandler(404)
     def not_found_error(error):
         lang = session.get('lang', 'ua')
@@ -79,13 +82,13 @@ def create_app():
     from app.app.verification.routes import verification_bp
     from app.app.verification.admin_routes import verification_admin_bp
     from dao.views import dao_bp  # Імпорт DAO blueprint
-
+    
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(auction_bp, url_prefix='/auction')
     app.register_blueprint(main_bp, url_prefix='/')
     app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(assistant_bp)
+    app.register_blueprint(assistant_bp, url_prefix='/assistant')
     app.register_blueprint(verification_bp)
     app.register_blueprint(verification_admin_bp)
     app.register_blueprint(dao_bp, url_prefix='/dao')  # Реєстрація DAO blueprint

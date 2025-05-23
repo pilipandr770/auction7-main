@@ -95,7 +95,7 @@ from app.forms.buyer_register_form import BuyerRegisterForm
 from app.forms.seller_register_form import SellerRegisterForm
 import os
 
-@auth_bp.route('/choose-role')
+@auth_bp.route('/choose_role')
 def choose_role():
     lang = session.get('lang', 'ua')
     if lang == 'en':

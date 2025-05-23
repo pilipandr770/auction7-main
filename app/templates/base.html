@@ -16,13 +16,17 @@
     
     <!-- Додаткові стилі з інлайн-тегом для гарантованого застосування -->    <style>        .text-truncate-container { max-width: 100%; overflow: hidden; }
         .text-truncate-item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-        
-        /* Стилі для віджета асистента */
+          /* Стилі для віджета асистента */
         #assistant-messages .badge,
         #assistant-messages .text-muted {
             word-wrap: break-word;
             word-break: break-word;
             max-width: 100%;
+        }
+        
+        .recording {
+            background-color: #dc3545 !important;
+            color: white !important;
         }
           /* Стилі для відео-фону */
         .video-background {
@@ -125,27 +129,48 @@
             gap: 5px;
             white-space: nowrap;
             transition: all 0.2s ease;
-        }
-          /* Адаптивність для віджета асистента */
+        }          /* Адаптивність для віджета асистента */
         #assistant-widget {
             position: fixed;
             bottom: 24px;
             right: 24px;
             z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
         }
         
-        #assistant-open-btn {
+        #assistant-mic-btn {
             width: 56px;
             height: 56px;
             font-size: 2em;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        #assistant-mic-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        #assistant-mic-btn.recording {
+            background-color: #dc3545 !important;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
         #assistant-chat {
             width: 340px;
             max-width: 90vw;
+            margin-bottom: 10px;
         }
         
         #assistant-messages {
@@ -158,14 +183,13 @@
             display: flex;
             gap: 5px;
         }
-        
-        @media (max-width: 576px) {
+          @media (max-width: 576px) {
             #assistant-widget {
                 bottom: 16px;
                 right: 16px;
             }
             
-            #assistant-open-btn {
+            #assistant-mic-btn {
                 width: 48px;
                 height: 48px;
                 font-size: 1.75em;
@@ -181,7 +205,7 @@
                 right: 12px;
             }
             
-            #assistant-open-btn {
+            #assistant-mic-btn {
                 width: 42px;
                 height: 42px;
                 font-size: 1.5em;
@@ -321,111 +345,8 @@
                 <a href="{{ url_for('dao.index') }}" class="btn btn-outline-warning btn-sm footer-btn text-truncate-item">{{ ui_text('dao', lang) }}</a>
             </div>
         </div>
-    </footer>    <!-- Віджет асистента OpenAI (чат у правому нижньому куті) -->
-    <div id="assistant-widget">
-        <button id="assistant-open-btn" class="btn btn-primary rounded-circle shadow">
-            <span aria-label="{{ ui_text('chatbot', lang) }}" title="{{ ui_text('chatbot', lang) }}">💬</span>
-        </button>
-        <div id="assistant-chat" class="card shadow" style="display:none;">
-            <div class="card-header bg-primary text-white py-2 d-flex justify-content-between align-items-center">
-                <span class="text-truncate-item">{{ ui_text('assistant', lang) }}</span>
-                <button type="button" class="btn-close btn-close-white" id="assistant-close-btn"></button>
-            </div>
-            <div class="card-body p-2" id="assistant-messages">
-                <div class="text-muted small text-truncate-container">{{ ui_text('assistant_greeting', lang) }}</div>
-            </div>
-            <div class="card-footer p-2">
-                <form id="assistant-form">
-                    <input type="text" class="form-control" id="assistant-input"
-                        placeholder="{{ ui_text('assistant_placeholder', lang) }}" autocomplete="off">
-                    <button class="btn btn-primary" type="submit">&rarr;</button>
-                    <button type="button" id="assistant-voice-btn" class="btn btn-outline-secondary"
-                        title="{{ ui_text('assistant_voice', lang) }}"><span id="assistant-voice-ico">🎤</span></button>
-                </form>
-            </div>
-        </div>
-    </div>    <script>
-    // Віджет асистента: відкриття/закриття
-    const widget = document.getElementById('assistant-widget');
-    const openBtn = document.getElementById('assistant-open-btn');
-    const chat = document.getElementById('assistant-chat');
-    const closeBtn = document.getElementById('assistant-close-btn');
-    const messages = document.getElementById('assistant-messages');
-    
-    openBtn.onclick = () => { 
-        chat.style.display = 'block'; 
-        openBtn.style.display = 'none';
-        // Прокрутка до останнього повідомлення
-        messages.scrollTop = messages.scrollHeight;
-    };
-    
-    closeBtn.onclick = () => { 
-        chat.style.display = 'none'; 
-        openBtn.style.display = 'block'; 
-    };
-    
-    // Відправка повідомлення
-    document.getElementById('assistant-form').onsubmit = async function(e) {
-        e.preventDefault();
-        const input = document.getElementById('assistant-input');
-        const msg = input.value.trim();
-        if (!msg) return;
-        
-        messages.innerHTML += `<div class='text-end mb-1'><span class='badge bg-secondary text-truncate-container'>${msg}</span></div>`;
-        input.value = '';
-        messages.scrollTop = messages.scrollHeight;
-        
-        // Відправка на бекенд
-        const resp = await fetch('/assistans/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg })
-        });
-        
-        const data = await resp.json();
-        if (data.response) {
-            messages.innerHTML += `<div class='mb-1'><span class='badge bg-primary text-truncate-container'>${data.response}</span></div>`;
-            // Відтворення голосу, якщо є
-            if(data.audio) {
-                const audio = new Audio(data.audio);
-                audio.play();
-            }
-        } else {
-            messages.innerHTML += `<div class='mb-1 text-danger text-truncate-container'>Помилка: ${data.error || 'Невідома помилка'}</div>`;
-        }
-        messages.scrollTop = messages.scrollHeight;
-    };
-    // Голосовий ввід через Web Speech API
-    const voiceBtn = document.getElementById('assistant-voice-btn');
-    const voiceIco = document.getElementById('assistant-voice-ico');
-    let recognizing = false;
-    let recognition;
-    if ('webkitSpeechRecognition' in window) {
-        recognition = new webkitSpeechRecognition();
-        recognition.lang = (lang === 'en' ? 'en-US' : (lang === 'de' ? 'de-DE' : 'uk-UA'));
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.onstart = () => { recognizing = true; voiceIco.textContent = '🔴'; };
-        recognition.onend = () => { recognizing = false; voiceIco.textContent = '🎤'; };
-        recognition.onerror = () => { recognizing = false; voiceIco.textContent = '🎤'; };
-        recognition.onresult = function(event) {
-            const text = event.results[0][0].transcript;
-            document.getElementById('assistant-input').value = text;
-            document.getElementById('assistant-form').dispatchEvent(new Event('submit'));
-        };
-        voiceBtn.onclick = function(e) {
-            e.preventDefault();
-            if (recognizing) {
-                recognition.stop();
-                return;
-            }
-            recognition.start();
-        };
-    } else {
-        voiceBtn.disabled = true;
-        voiceBtn.title = '{{ ui_text('voice_not_supported', lang) }}';
-    }    </script>
-    <!-- Кінець віджета асистента -->
+    </footer>    <!-- Simple AI Assistant Widget - Self-contained, no HTML needed here -->    <!-- Load new simple assistant.js for proper assistant functionality -->
+    <script src="{{ url_for('static', filename='js/assistant_simple_updated.js') }}"></script>
     
     <!-- Bootstrap and other Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

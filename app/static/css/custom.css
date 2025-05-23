@@ -1205,3 +1205,50 @@ footer a:hover {
         width: 280px;
     }
 }
+
+/* Вставити у custom.css */
+#assistant-widget {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 9999;
+}
+#assistant-chat {
+    width: 340px;
+    max-width: 95vw;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    border: 1.5px solid #f5c46c;
+}
+#assistant-messages {
+    max-height: 240px;
+    overflow-y: auto;
+    font-size: 1.07em;
+    padding-bottom: 8px;
+    background: #faf8f3;
+    border-radius: 13px 13px 0 0;
+}
+#assistant-form {
+    display: flex;
+    gap: 7px;
+    padding-top: 4px;
+}
+#assistant-voice-btn {
+    background: #f5c46c;
+    color: #36312f;
+    border-radius: 50%;
+    border: none;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25em;
+    transition: background 0.2s;
+}
+#assistant-voice-btn.recording {
+    background: #ff6868 !important;
+    color: #fff;
+    animation: pulse 1s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 #ff686899; }
+    100% { box-shadow: 0 0 0 14px rgba(255,104,104,0); }
+}
