@@ -1,17 +1,18 @@
 import os
 import multiprocessing
 
-# Bind host and port (use 5050 for development)
-bind = "0.0.0.0:" + os.environ.get("PORT", "5050")
+# Bind host and port (use 10000 for Render.com)
+bind = "0.0.0.0:" + os.environ.get("PORT", "10000")
 
-# Workers and threads - detect CPU count but safer values for Windows
-workers = 2  # Simplified for Windows
-threads = 2
+# Workers and threads - optimized for Render.com
+workers = 2  # Simplified for most environments
+threads = 4
 worker_class = "gevent"  # Better for handling asynchronous requests
 
-# Timeouts - increase to prevent 502 errors
-timeout = 300  # Increased timeout for handling longer requests
-keepalive = 120
+# Timeouts - increased to prevent 502 errors on Render.com
+timeout = 600  # Increased timeout for handling longer requests
+keepalive = 120  # Keep connections alive
+worker_connections = 1000
 
 # Graceful shutdown and restart
 graceful_timeout = 120
