@@ -8,13 +8,85 @@
 <div class="container my-5">
     <h1 class="text-center text-secondary">Адмін Панель</h1>
 
-    <!-- Баланс платформи -->
+    <!-- Баланс платформи та статистика -->
     <section class="my-4">
-        <h2 class="text-secondary">Баланс платформи</h2>
-        <div class="alert alert-info">
-        <a href="{{ url_for('admin.verify_sellers') }}" class="btn btn-outline-info">Перевірити продавців</a>
-    
-            <strong>Загальний баланс платформи:</strong> {{ admin_balance }} EUR
+        <h2 class="text-secondary">Фінансова статистика</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Баланс платформи</h5>
+                        <h2>{{ admin_balance | round(2) }} EUR</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Дохід від переглядів</h5>
+                        <h2>{{ total_view_revenue | round(2) }} EUR</h2>
+                        <small>{{ view_count }} переглядів</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Активні аукціони</h5>
+                        <h2>{{ active_auctions }}</h2>
+                        <small>Закритих: {{ closed_auctions }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="{{ url_for('admin.verify_sellers') }}" class="btn btn-outline-info">Перевірити продавців</a>
+            <a href="{{ url_for('admin.user_management') }}" class="btn btn-outline-success">Управління користувачами</a>
+            <a href="{{ url_for('admin.payments_report') }}" class="btn btn-outline-warning">Звіт по платежах</a>
+            <a href="{{ url_for('admin.auction_management') }}" class="btn btn-outline-danger">Управління аукціонами</a>
+        </div>
+    </section>
+
+    <!-- Топ користувачі -->
+    <section class="my-4">
+        <h3 class="text-secondary">Топ користувачі за витратами</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Ім'я</th>
+                        <th>Email</th>
+                        <th>Загальні витрати (EUR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for spender in top_spenders %}
+                    <tr>
+                        <td>{{ spender.username }}</td>
+                        <td>{{ spender.email }}</td>
+                        <td>{{ spender.total_spent | round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Статистика участі -->
+    <section class="my-4">
+        <h3 class="text-secondary">Статистика участі</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="alert alert-secondary">
+                    <strong>Загальна кількість учасників:</strong> {{ total_participants }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-success">
+                    <strong>Оплачених участей:</strong> {{ paid_participants }}
+                </div>
+            </div>
         </div>
     </section>
 

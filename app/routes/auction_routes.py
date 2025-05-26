@@ -6,6 +6,7 @@ from app import db
 from app.models.auction import Auction
 from app.models.user import User
 from app.models.auction_participant import AuctionParticipant
+from app.models.payment import Payment
 from blockchain_payments.payment_token_discount import get_user_discount
 from app.utils.i18n_messages import get_message
 from app.utils.i18n_ui import ui_text
@@ -330,7 +331,15 @@ def view_price_again(auction_id):
 
         admin = User.query.filter_by(is_admin=True).first()
         if admin:
-            admin.add_balance(final_price)
+            admin.add_balance(final_price)        # Create Payment record for view fee tracking
+        payment = Payment(
+            user_id=current_user.id,
+            auction_id=auction_id,
+            amount=final_price,
+            purpose='view_fee',
+            recipient='platform'
+        )
+        db.session.add(payment)
 
         db.session.commit()
 

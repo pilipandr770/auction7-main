@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 class Payment(db.Model):
     __tablename__ = 'payments'  # Додано ім'я таблиці для ясності
@@ -10,6 +11,7 @@ class Payment(db.Model):
     purpose = db.Column(db.String(50), nullable=False)  # Наприклад, 'entry_fee' або 'view_info'
     recipient = db.Column(db.String(50), nullable=False)  # Наприклад, 'seller' або 'platform'
     is_processed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Додано поле дати створення
 
     def __init__(self, user_id, auction_id, amount, purpose, recipient):
         self.user_id = user_id

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Звіт по платежах{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center text-secondary">Звіт по платежах</h1>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">← Назад до панелі</a>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5>Платежі за вхід</h5>
+                    <h3>{{ entry_payments|length }}</h3>
+                    <small>{{ entry_payments|sum(attribute='0.amount')|round(2) }} EUR</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5>Платежі за перегляди</h5>
+                    <h3>{{ view_payments|length }}</h3>
+                    <small>{{ view_payments|sum(attribute='0.amount')|round(2) }} EUR</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблиця платежів за перегляди (дохід адміна) -->
+    <section class="mb-5">
+        <h3 class="text-success">Платежі за перегляди (дохід платформи)</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Користувач</th>
+                        <th>Email</th>
+                        <th>Аукціон</th>
+                        <th>Сума (EUR)</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment, username, email, auction_title in view_payments %}
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>{{ username }}</td>
+                        <td>{{ email }}</td>
+                        <td>{{ auction_title }}</td>
+                        <td>{{ payment.amount | round(2) }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if payment.is_processed else 'bg-warning' }}">
+                                {{ 'Оброблено' if payment.is_processed else 'В обробці' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Таблиця платежів за вхід -->
+    <section class="mb-5">
+        <h3 class="text-primary">Платежі за участь</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Користувач</th>
+                        <th>Email</th>
+                        <th>Аукціон</th>
+                        <th>Сума (EUR)</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment, username, email, auction_title in entry_payments %}
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>{{ username }}</td>
+                        <td>{{ email }}</td>
+                        <td>{{ auction_title }}</td>
+                        <td>{{ payment.amount | round(2) }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if payment.is_processed else 'bg-warning' }}">
+                                {{ 'Оброблено' if payment.is_processed else 'В обробці' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Всі платежі -->
+    <section>
+        <h3 class="text-secondary">Всі останні платежі</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Користувач</th>
+                        <th>Email</th>
+                        <th>Аукціон</th>
+                        <th>Тип</th>
+                        <th>Сума (EUR)</th>
+                        <th>Одержувач</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment, username, email, auction_title in payments %}
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>{{ username }}</td>
+                        <td>{{ email }}</td>
+                        <td>{{ auction_title }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-primary' if payment.purpose == 'entry_fee' else 'bg-success' }}">
+                                {{ 'Вхід' if payment.purpose == 'entry_fee' else 'Перегляд' }}
+                            </span>
+                        </td>
+                        <td>{{ payment.amount | round(2) }}</td>
+                        <td>{{ payment.recipient }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if payment.is_processed else 'bg-warning' }}">
+                                {{ 'Оброблено' if payment.is_processed else 'В обробці' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Управління аукціонами{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center text-secondary">Управління аукціонами</h1>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">← Назад до панелі</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва</th>
+                    <th>Продавець</th>
+                    <th>Стартова ціна</th>
+                    <th>Поточна ціна</th>
+                    <th>Учасників</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for auction, seller_name, participant_count in auctions %}
+                <tr id="auction-{{ auction.id }}">
+                    <td>{{ auction.id }}</td>
+                    <td>{{ auction.title }}</td>
+                    <td>{{ seller_name }}</td>
+                    <td>{{ auction.starting_price | round(2) }} EUR</td>
+                    <td>{{ auction.current_price | round(2) }} EUR</td>
+                    <td>{{ participant_count }}</td>
+                    <td>
+                        <span class="badge {{ 'bg-success' if auction.is_active else 'bg-danger' }}">
+                            {{ 'Активний' if auction.is_active else 'Закритий' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            {% if auction.is_active %}
+                            <button class="btn btn-sm btn-warning" onclick="manageAuction({{ auction.id }}, 'force_close')">
+                                Закрити
+                            </button>
+                            {% else %}
+                            <button class="btn btn-sm btn-success" onclick="manageAuction({{ auction.id }}, 'reopen')">
+                                Відновити
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-danger" onclick="manageAuction({{ auction.id }}, 'delete')">
+                                Видалити
+                            </button>
+                            <a href="/auction/{{ auction.id }}" class="btn btn-sm btn-info" target="_blank">
+                                Переглянути
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function manageAuction(auctionId, action) {
+    let confirmMessage = '';
+    switch(action) {
+        case 'force_close':
+            confirmMessage = 'Закрити аукціон примусово?';
+            break;
+        case 'reopen':
+            confirmMessage = 'Відновити аукціон?';
+            break;
+        case 'delete':
+            confirmMessage = 'УВАГА! Видалити аукціон назавжди? Ця дія не може бути скасована!';
+            break;
+    }
+    
+    if (!confirm(confirmMessage)) return;
+    
+    try {
+        const response = await fetch(`/admin/manage_auction/${auctionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: action
+            })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('Помилка при виконанні операції');
+    }
+}
+</script>
+{% endblock %}

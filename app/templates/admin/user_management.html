@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Управління користувачами{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center text-secondary">Управління користувачами</h1>
+    
+    <div class="mb-3">
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary">← Назад до панелі</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ім'я</th>
+                    <th>Email</th>
+                    <th>Баланс (EUR)</th>
+                    <th>Тип</th>
+                    <th>Адмін</th>
+                    <th>Верифіковано</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr id="user-{{ user.id }}">
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span id="balance-{{ user.id }}">{{ user.balance | round(2) }}</span>
+                    </td>
+                    <td>{{ user.user_type }}</td>
+                    <td>
+                        <span class="badge {{ 'bg-success' if user.is_admin else 'bg-secondary' }}">
+                            {{ 'Так' if user.is_admin else 'Ні' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {{ 'bg-success' if user.is_verified else 'bg-warning' }}">
+                            {{ 'Так' if user.is_verified else 'Ні' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-success" onclick="adjustBalance({{ user.id }}, 'add')">+</button>
+                            <button class="btn btn-sm btn-danger" onclick="adjustBalance({{ user.id }}, 'deduct')">-</button>
+                            <button class="btn btn-sm btn-warning" onclick="toggleAdmin({{ user.id }})">👤</button>
+                            <button class="btn btn-sm btn-info" onclick="toggleVerified({{ user.id }})">✓</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+async function adjustBalance(userId, action) {
+    const amount = prompt('Введіть суму:');
+    if (!amount || isNaN(amount)) return;
+    
+    try {
+        const response = await fetch(`/admin/manage_user/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: action === 'add' ? 'add_balance' : 'deduct_balance',
+                amount: parseFloat(amount)
+            })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('Помилка при виконанні операції');
+    }
+}
+
+async function toggleAdmin(userId) {
+    if (!confirm('Змінити статус адміністратора?')) return;
+    
+    try {
+        const response = await fetch(`/admin/manage_user/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'toggle_admin'
+            })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('Помилка при виконанні операції');
+    }
+}
+
+async function toggleVerified(userId) {
+    if (!confirm('Змінити статус верифікації?')) return;
+    
+    try {
+        const response = await fetch(`/admin/manage_user/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'toggle_verified'
+            })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    } catch (error) {
+        alert('Помилка при виконанні операції');
+    }
+}
+</script>
+{% endblock %}
