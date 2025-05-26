@@ -164,10 +164,11 @@ def auction_detail(auction_id):
 def close_auction(auction_id):
     lang = session.get('lang', 'ua')
     auction = Auction.query.get(auction_id)
+    
     if not auction:
         flash(get_message('auction_not_found', lang), 'error')
         return redirect(url_for('main.index'))
-
+    
     if not auction.is_active:
         flash(get_message('auction_already_closed', lang), 'info')
         return redirect(url_for('main.index'))
@@ -175,7 +176,9 @@ def close_auction(auction_id):
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
         flash(get_message('participation_required_for_close', lang), 'error')
-        return redirect(url_for('main.index'))    if current_user.balance < auction.current_price:
+        return redirect(url_for('main.index'))
+    
+    if current_user.balance < auction.current_price:
         flash(get_message('insufficient_funds', lang), 'error')
         return redirect(url_for('main.index'))
     

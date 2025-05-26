@@ -265,13 +265,59 @@ def confirm_receive(auction_id):
         flash(get_message('confirm_failed', lang), 'error')
     return redirect(url_for('user.buyer_dashboard', email=current_user.email))
 
-@user_bp.route('/connect_wallet', methods=['POST'])
+@user_bp.route('/connect_wallet', methods=['GET', 'POST'])
 @login_required
 def connect_wallet():
+    lang = session.get('lang', 'ua')
+    
+    if request.method == 'GET':
+        # Показати сторінку підключення гаманця
+        if lang == 'en':
+            return render_template('connect_wallet_en.html', lang=lang, ui_text=ui_text)
+        elif lang == 'de':
+            return render_template('connect_wallet_de.html', lang=lang, ui_text=ui_text)
+        return render_template('connect_wallet.html', lang=lang, ui_text=ui_text)
+    
+    # POST request - process wallet connection
     wallet_address = request.form.get('wallet_address')
+    wallet_type = request.form.get('wallet_type', 'Unknown')
+    
     if not wallet_address:
-        return jsonify({'error': 'Не вказано адресу гаманця'}), 400
-    current_user.wallet_address = wallet_address
-    db.session.commit()
-    return jsonify({'message': 'Гаманець підключено!'}), 200
+        flash(get_message('wallet_address_required', lang), 'error')
+        return redirect(url_for('user.connect_wallet'))
+    
+    # Validate Ethereum address format
+    if not wallet_address.startswith('0x') or len(wallet_address) != 42:
+        flash(get_message('invalid_wallet_address', lang), 'error')
+        return redirect(url_for('user.connect_wallet'))
+    
+    try:
+        # Additional validation - check if address contains only valid hex characters
+        int(wallet_address[2:], 16)
+    except ValueError:
+        flash(get_message('invalid_wallet_address', lang), 'error')
+        return redirect(url_for('user.connect_wallet'))
+    
+    # Save wallet address and type
+    try:
+        current_user.wallet_address = wallet_address.lower()  # Store in lowercase for consistency
+        # You might want to add a wallet_type field to the User model in the future
+        db.session.commit()
+        
+        flash(get_message('wallet_connected_success', lang).format(
+            wallet_type=wallet_type, 
+            address=wallet_address[:6] + '...' + wallet_address[-4:]
+        ), 'success')
+        
+        # Redirect back to dashboard
+        if current_user.user_type == 'seller':
+            return redirect(url_for('user.seller_dashboard', email=current_user.email))
+        else:
+            return redirect(url_for('user.buyer_dashboard', email=current_user.email))
+            
+    except Exception as e:
+        print(f"Error saving wallet address: {e}")
+        db.session.rollback()
+        flash(get_message('wallet_connection_failed', lang), 'error')
+        return redirect(url_for('user.connect_wallet'))
 

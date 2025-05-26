@@ -1,29 +1,199 @@
-// MetaMask integration for wallet connect
+// Universal Web3 Wallet Integration
 async function connectWallet() {
-    if (window.ethereum) {
+    // Detect available wallet providers
+    let provider = null;
+    let walletType = '';
+    
+    // Check for MetaMask
+    if (window.ethereum && window.ethereum.isMetaMask) {
+        provider = window.ethereum;
+        walletType = 'MetaMask';
+    }
+    // Check for Coinbase Wallet
+    else if (window.ethereum && window.ethereum.isCoinbaseWallet) {
+        provider = window.ethereum;
+        walletType = 'Coinbase Wallet';
+    }
+    // Check for Trust Wallet
+    else if (window.ethereum && window.ethereum.isTrust) {
+        provider = window.ethereum;
+        walletType = 'Trust Wallet';
+    }
+    // Check for generic Web3 provider
+    else if (window.ethereum) {
+        provider = window.ethereum;
+        walletType = 'Web3 Wallet';
+    }
+    // Check for legacy web3
+    else if (window.web3) {
+        provider = window.web3.currentProvider;
+        walletType = 'Legacy Web3';
+    }
+    
+    if (provider) {
         try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            // Request account access
+            let accounts;
+            if (provider.request) {
+                accounts = await provider.request({ method: 'eth_requestAccounts' });
+            } else if (provider.enable) {
+                accounts = await provider.enable();
+            } else {
+                throw new Error('Непідтримуваний провайдер гаманця');
+            }
+            
             const walletAddress = accounts[0];
+            
+            // Verify we're on the correct network (Polygon Mainnet)
+            try {
+                const chainId = await provider.request({ method: 'eth_chainId' });
+                if (chainId !== '0x89') { // Polygon Mainnet chain ID
+                    const shouldSwitch = confirm('Ви не підключені до мережі Polygon. Переключитись автоматично?');
+                    if (shouldSwitch) {
+                        await switchToPolygon(provider);
+                    }
+                }
+            } catch (networkError) {
+                console.warn('Не вдалося перевірити мережу:', networkError);
+            }
+            
             // Send address to backend
             const response = await fetch('/user/connect_wallet', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `wallet_address=${walletAddress}`
+                body: `wallet_address=${walletAddress}&wallet_type=${walletType}`
             });
+            
             if (response.ok) {
+                alert(`Гаманець ${walletType} успішно підключено!`);
                 window.location.reload();
             } else {
                 alert('Не вдалося підключити гаманець.');
             }
         } catch (err) {
-            alert('Підключення MetaMask скасовано або сталася помилка.');
+            console.error('Помилка підключення гаманця:', err);
+            if (err.code === 4001) {
+                alert('Підключення гаманця скасовано користувачем.');
+            } else {
+                alert(`Помилка підключення ${walletType}: ${err.message}`);
+            }
         }
     } else {
-        alert('MetaMask не встановлено!');
+        // No Web3 provider detected - show manual input option
+        showManualWalletInput();
     }
 }
+
+// Switch to Polygon network
+async function switchToPolygon(provider) {
+    try {
+        await provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x89' }], // Polygon Mainnet
+        });
+    } catch (switchError) {
+        // Network not added to wallet, try to add it
+        if (switchError.code === 4902) {
+            try {
+                await provider.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x89',
+                        chainName: 'Polygon Mainnet',
+                        nativeCurrency: {
+                            name: 'MATIC',
+                            symbol: 'MATIC',
+                            decimals: 18,
+                        },
+                        rpcUrls: ['https://polygon-rpc.com/'],
+                        blockExplorerUrls: ['https://polygonscan.com/'],
+                    }],
+                });
+            } catch (addError) {
+                console.error('Не вдалося додати мережу Polygon:', addError);
+                alert('Будь ласка, додайте мережу Polygon вручну в налаштуваннях гаманця.');
+            }
+        } else {
+            console.error('Не вдалося переключитись на Polygon:', switchError);
+        }
+    }
+}
+
+// Manual wallet input for users without Web3 browser extension
+function showManualWalletInput() {
+    const walletAddress = prompt(
+        'Web3 гаманець не знайдено.\n\n' +
+        'Ви можете ввести адресу вашого гаманця вручну:\n' +
+        '(Підтримуються: MetaMask, Trust Wallet, Coinbase Wallet, Rainbow, та інші Ethereum-сумісні гаманці)'
+    );
+    
+    if (walletAddress) {
+        // Basic validation for Ethereum address format
+        if (/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+            submitWalletAddress(walletAddress, 'Manual Input');
+        } else {
+            alert('Неправильний формат адреси. Адреса повинна починатися з 0x та містити 40 символів.');
+            showManualWalletInput(); // Try again
+        }
+    }
+}
+
+// Submit wallet address to backend
+async function submitWalletAddress(address, walletType) {
+    try {
+        const response = await fetch('/user/connect_wallet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `wallet_address=${address}&wallet_type=${walletType}`
+        });
+        
+        if (response.ok) {
+            alert(`Гаманець успішно підключено!\nТип: ${walletType}\nАдреса: ${address.substring(0,6)}...${address.substring(38)}`);
+            window.location.reload();
+        } else {
+            alert('Не вдалося зберегти адресу гаманця.');
+        }
+    } catch (error) {
+        console.error('Помилка збереження адреси:', error);
+        alert('Сталася помилка при збереженні адреси гаманця.');
+    }
+}
+
+// Detect wallet changes
+function setupWalletEventListeners() {
+    if (window.ethereum) {
+        // Account changed
+        window.ethereum.on('accountsChanged', function (accounts) {
+            if (accounts.length === 0) {
+                console.log('Гаманець відключено');
+                alert('Гаманець відключено. Перезавантажте сторінку для повторного підключення.');
+            } else {
+                console.log('Акаунт змінено на:', accounts[0]);
+                // Optionally auto-update the connected wallet
+                if (confirm('Виявлено зміну акаунта в гаманці. Оновити підключення?')) {
+                    window.location.reload();
+                }
+            }
+        });
+        
+        // Network changed
+        window.ethereum.on('chainChanged', function (chainId) {
+            console.log('Мережа змінена на:', chainId);
+            if (chainId !== '0x89') {
+                alert('Увага: Ви переключилися з мережі Polygon. Деякі функції можуть не працювати правильно.');
+            }
+        });
+    }
+}
+
+// Initialize wallet event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setupWalletEventListeners();
+});
 
 document.addEventListener('DOMContentLoaded', function () {
     const walletShort = document.getElementById('wallet-address-short');

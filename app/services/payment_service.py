@@ -27,13 +27,11 @@ class PaymentService:
     def process_entry_payment(user_email, auction_id, amount):
         """
         Обробляє платіж за участь в аукціоні з урахуванням знижки за токен.
-        """
-        user = User.query.filter_by(email=user_email).first()
+        """        user = User.query.filter_by(email=user_email).first()
         if not user:
             return {"message": "Користувача не знайдено"}, 404
 
         # Застосування знижки за токен
-        from app.services.payment_service import calculate_discounted_price
         discounted_amount = calculate_discounted_price(user.wallet_address, amount)
 
         # Перевірка, чи користувач вже сплатив за участь
@@ -68,13 +66,11 @@ class PaymentService:
     def process_view_payment(user_email, auction_id, amount):
         """
         Обробляє платіж за перегляд поточної ціни аукціону з урахуванням знижки за токен.
-        """
-        user = User.query.filter_by(email=user_email).first()
+        """        user = User.query.filter_by(email=user_email).first()
         if not user:
             return {"message": "Користувача не знайдено"}, 404
 
         # Застосування знижки за токен
-        from app.services.payment_service import calculate_discounted_price
         discounted_amount = calculate_discounted_price(user.wallet_address, amount)
 
         # Перевірка наявності коштів

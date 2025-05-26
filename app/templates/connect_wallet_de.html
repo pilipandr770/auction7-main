@@ -1,5 +1,110 @@
 {% extends 'base.html' %}
 {% block title %}Wallet verbinden{% endblock %}
 {% block content %}
-<!-- German translation of connect_wallet.html -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h2>Web3 Wallet verbinden</h2>
+                    <p class="text-muted">Verbinden Sie Ihr Krypto-Wallet für Rabatte</p>
+                </div>
+                <div class="card-body">
+                    <!-- Automatic wallet detection -->
+                    <div class="mb-4">
+                        <h5>🔗 Automatische Verbindung</h5>
+                        <p class="text-muted small">Beste Option - wir erkennen Ihr Wallet automatisch</p>
+                        <button type="button" class="btn btn-primary btn-lg w-100" onclick="connectWallet()">
+                            <i class="fas fa-wallet"></i> Wallet automatisch verbinden
+                        </button>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                Unterstützte Wallets: MetaMask, Trust Wallet, Coinbase Wallet, Rainbow und andere Web3 Wallets
+                            </small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Manual wallet input -->
+                    <div class="mb-4">
+                        <h5>✍️ Manuelle Adresseingabe</h5>
+                        <p class="text-muted small">Falls die automatische Verbindung nicht funktioniert</p>
+                        <form method="POST" action="/user/connect_wallet">
+                            <div class="mb-3">
+                                <label for="wallet_address" class="form-label">Wallet-Adresse</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="wallet_address" 
+                                       name="wallet_address" 
+                                       placeholder="0x..." 
+                                       pattern="^0x[a-fA-F0-9]{40}$"
+                                       required>
+                                <div class="form-text">
+                                    Geben Sie die vollständige Adresse Ihres Ethereum-kompatiblen Wallets ein (42 Zeichen, beginnt mit 0x)
+                                </div>
+                            </div>
+                            <input type="hidden" name="wallet_type" value="Manual Input">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                Adresse speichern
+                            </button>
+                        </form>
+                    </div>
+
+                    <hr>
+
+                    <!-- Wallet recommendations -->
+                    <div class="mb-4">
+                        <h5>📱 Empfohlene Wallets</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <a href="https://metamask.io/" target="_blank" class="btn btn-outline-secondary w-100">
+                                    <strong>MetaMask</strong><br>
+                                    <small>Browser / Mobil</small>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <a href="https://trustwallet.com/" target="_blank" class="btn btn-outline-secondary w-100">
+                                    <strong>Trust Wallet</strong><br>
+                                    <small>Mobil</small>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <a href="https://www.coinbase.com/wallet" target="_blank" class="btn btn-outline-secondary w-100">
+                                    <strong>Coinbase Wallet</strong><br>
+                                    <small>Browser / Mobil</small>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <a href="https://rainbow.me/" target="_blank" class="btn btn-outline-secondary w-100">
+                                    <strong>Rainbow</strong><br>
+                                    <small>Mobil</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Information about discounts -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-percentage"></i> Token-Rabatte</h6>
+                        <p class="mb-1">Nach der Verbindung Ihres Wallets erhalten Sie automatisch Rabatte basierend auf Ihrem Token-Guthaben:</p>
+                        <ul class="mb-0 small">
+                            <li>100.000+ Token → 50% Rabatt</li>
+                            <li>50.000+ Token → 25% Rabatt</li>
+                            <li>10.000+ Token → 10% Rabatt</li>
+                            <li>1.000+ Token → 5% Rabatt</li>
+                            <li>100+ Token → 1% Rabatt</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{% if current_user.user_type == 'seller' %}{{ url_for('user.seller_dashboard', email=current_user.email) }}{% else %}{{ url_for('user.buyer_dashboard', email=current_user.email) }}{% endif %}" class="btn btn-secondary">
+                            ← Zurück zum Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
