@@ -6,24 +6,83 @@
 
 {% block content %}
 <div class="container my-5 text-center">
-    <h1 class="text-secondary fw-bold">Аукціон завершено</h1>
-    <p class="text-muted fs-5 mt-3">Дякуємо за участь! Ось деталі закритого аукціону:</p>
+    <h1 class="text-secondary fw-bold">🎉 Вітаємо! Аукціон завершено</h1>
+    <p class="text-muted fs-5 mt-3">Ви успішно виграли аукціон! Ось деталі:</p>
 
     <div class="card mt-4 border-0 shadow-sm">
         <div class="card-body">
-            <h5 class="card-title text-warning fw-bold">Деталі аукціону</h5>
+            <h5 class="card-title text-success fw-bold">Деталі аукціону</h5>
             <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-light text-muted">Назва: {{ auction.title }}</li>
-                <li class="list-group-item bg-light text-muted">Переможець: {{ auction.winner_name }}</li>
-                <li class="list-group-item bg-light text-muted">Ціна закриття: {{ auction.final_price }} грн</li>
-                <li class="list-group-item bg-light text-muted">Дата завершення: {{ auction.close_date }}</li>
+                <li class="list-group-item bg-light text-muted">
+                    <strong>Назва:</strong> {{ auction.title }}
+                </li>
+                <li class="list-group-item bg-light text-muted">
+                    <strong>Переможець:</strong> {{ current_user.username }} (Ви!)
+                </li>
+                <li class="list-group-item bg-light text-muted">
+                    <strong>Кінцева ціна:</strong> €{{ auction.current_price }}
+                </li>
+                <li class="list-group-item bg-light text-muted">
+                    <strong>Загальна сума:</strong> €{{ auction.total_earnings }}
+                </li>
+                <li class="list-group-item bg-light text-muted">
+                    <strong>Учасників:</strong> {{ auction.total_participants }}
+                </li>
             </ul>
         </div>
     </div>
 
+    <!-- Кнопки дій для покупця -->
+    {% if current_user.id == auction.winner_id %}
     <div class="mt-4">
-        <a href="/" class="btn btn-secondary">Повернутися на головну</a>
-        <a href="/user/dashboard" class="btn btn-warning">До панелі користувача</a>
+        <div class="alert alert-info">
+            <h5>📞 Наступні кроки:</h5>
+            <p>Натисніть кнопку нижче, щоб отримати контактні дані продавця та зв'язатися з ним для отримання товару.</p>
+        </div>
+        
+        <a href="{{ url_for('auction.auction_contact_details', auction_id=auction.id) }}" 
+           class="btn btn-success btn-lg me-3">
+            📞 Контакти продавця
+        </a>
+        
+        {% if not auction.is_confirmed %}
+        <button class="btn btn-warning btn-lg" onclick="confirmReceived({{ auction.id }})">
+            ✅ Підтвердити отримання товару
+        </button>
+        {% else %}
+        <span class="badge bg-success fs-6">✅ Товар отримано</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Повернутися на головну</a>
+        <a href="{{ url_for('user.buyer_dashboard', email=current_user.email) }}" class="btn btn-primary">До панелі покупця</a>
     </div>
 </div>
+
+<script>
+async function confirmReceived(auctionId) {
+    if (!confirm('Ви впевнені, що отримали товар?')) return;
+    
+    try {
+        const response = await fetch(`/auction/confirm-received/${auctionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert('Дякуємо! Отримання товару підтверджено.');
+            location.reload();
+        } else {
+            alert('Помилка: ' + data.error);
+        }
+    } catch (error) {
+        alert('Помилка підтвердження: ' + error.message);
+    }
+}
+</script>
 {% endblock %}

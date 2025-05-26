@@ -175,12 +175,10 @@ def close_auction(auction_id):
     participant = AuctionParticipant.query.filter_by(auction_id=auction_id, user_id=current_user.id).first()
     if not participant or not participant.has_paid_entry:
         flash(get_message('participation_required_for_close', lang), 'error')
-        return redirect(url_for('main.index'))
-
-    if current_user.balance < auction.current_price:
+        return redirect(url_for('main.index'))    if current_user.balance < auction.current_price:
         flash(get_message('insufficient_funds', lang), 'error')
         return redirect(url_for('main.index'))
-
+    
     try:
         current_user.deduct_balance(auction.current_price)
         seller = User.query.get(auction.seller_id)
@@ -194,12 +192,12 @@ def close_auction(auction_id):
         db.session.commit()
 
         flash(get_message('auction_closed_success', lang), 'success')
-        # Після закриття показуємо сторінку завершення
+        # Після закриття показуємо сторінку завершення з даними продавця
         if lang == 'en':
-            return render_template('auctions/auction_close_en.html', auction=auction, lang=lang, ui_text=ui_text)
+            return render_template('auctions/auction_close_en.html', auction=auction, seller=seller, lang=lang, ui_text=ui_text)
         elif lang == 'de':
-            return render_template('auctions/auction_close_de.html', auction=auction, lang=lang, ui_text=ui_text)
-        return render_template('auctions/auction_close.html', auction=auction, lang=lang, ui_text=ui_text)
+            return render_template('auctions/auction_close_de.html', auction=auction, seller=seller, lang=lang, ui_text=ui_text)
+        return render_template('auctions/auction_close.html', auction=auction, seller=seller, lang=lang, ui_text=ui_text)
 
     except Exception as e:
         db.session.rollback()
@@ -328,10 +326,12 @@ def view_price_again(auction_id):
             return jsonify({"error": get_message('insufficient_funds', lang)}), 400
 
         current_user.deduct_balance(final_price)
-
+        
         admin = User.query.filter_by(is_admin=True).first()
         if admin:
-            admin.add_balance(final_price)        # Create Payment record for view fee tracking
+            admin.add_balance(final_price)
+        
+        # Create Payment record for view fee tracking
         payment = Payment(
             user_id=current_user.id,
             auction_id=auction_id,
@@ -355,3 +355,32 @@ def view_price_again(auction_id):
         db.session.rollback()
         print(f"[ERROR] view_price_again: {e}")
         return jsonify({"error": get_message('view_update_error', lang)}), 500
+
+# ======================= CONFIRM RECEIVED =======================
+
+@auction_bp.route('/confirm-received/<int:auction_id>', methods=['POST'])
+@login_required
+def confirm_received(auction_id):
+    lang = session.get('lang', 'ua')
+    auction = Auction.query.get(auction_id)
+    
+    if not auction:
+        return jsonify({"error": get_message('auction_not_found', lang)}), 404
+    
+    if auction.is_active:
+        return jsonify({"error": "Аукціон ще активний"}), 400
+        
+    if current_user.id != auction.winner_id:
+        return jsonify({"error": "Тільки переможець може підтвердити отримання"}), 403
+        
+    if auction.is_confirmed:
+        return jsonify({"error": "Отримання вже підтверджено"}), 400
+    
+    try:
+        auction.is_confirmed = True
+        db.session.commit()
+        return jsonify({"message": "Отримання товару підтверджено!"}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error confirming receipt: {e}")
+        return jsonify({"error": "Помилка підтвердження"}), 500
